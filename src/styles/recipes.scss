@@ -1,0 +1,158 @@
+$color1:#fafafa;
+$color2:#e1f6f4;
+$color3:#bfe9db;
+$color4:#1abc9c;
+$color5:#16a085;
+$color6:#27ae60;
+
+
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+
+
+
+$card-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+$delete-bg: transparent;
+$header-box-shadow: 0 -9px 0 rgba(26, 188, 156,1.0);
+$ingredient-font-color: #7f8c8d;
+
+body {
+  background-color: rgba(236, 240, 241,1.0);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  margin: 0;
+}
+
+.container {
+  padding: 0px 10%;
+  height: 100vh;
+  width: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+}
+
+.recipe-card {
+  margin: 40px;
+  background: #FFF;
+  box-shadow: $card-box-shadow;
+  width: 260px;
+  height: 440px;
+  overflow: hidden;
+  &:hover{
+    .header {
+      background-size: 100%;
+    }
+      
+  }
+  .header {
+    background: url(http://lorempixel.com/output/food-q-c-400-400-8.jpg) top center;
+    background-size: 110%;
+
+    height: 200px;
+    width: 100%;
+    overflow: hidden;
+    position: relative; 
+    transition: transform 0.3s ease-in-out, background-size 0.3s ease-in-out;
+  
+    .edit {
+      height: 50px;
+      width: 50px;
+      position: absolute;
+      bottom: 13%;
+      left: 10%;
+      border-radius: 50%;
+      background: $color4;
+      border: 0;
+      color: #fff;
+      font-size: 1.5rem;
+      transition: all .5s ease-in;
+      cursor: pointer;
+      z-index: 3;
+      &:hover {
+        background: $color5;
+        // transform: rotate(360deg);
+      }
+      &:focus {
+        outline: 0;
+      }
+    }
+    &:after {
+      height: 100%;
+      width: 130%;
+      background: #FFF;
+      content: '';
+      position: absolute;
+      top: 85%;
+      left: -15%;
+      transform: rotate(10deg);
+      box-shadow: $header-box-shadow;
+    }
+  }
+  .body {  
+    cursor: pointer;
+    padding: 15px 15px 25px 15px;
+    .title {
+      background: transparent;
+      border-bottom: 1.5px solid $color6;
+      color: $color4;
+      display: block;
+      margin: 0;
+      margin-bottom: 5px;
+      font-size: 1.5rem;
+      font-weight: 300;
+      padding: 0 0 5px 0;
+      text-decoration: none;
+    }
+    .mini-container{
+      display: flex;
+      h3 {
+          color: $color6;
+          font-weight: 300;
+          margin: 0;
+          margin-bottom: 15px;
+          padding: 0;
+          text-align: right;
+          width: 50%;
+          text-align: left;
+            
+            &:nth-of-type(2) {
+            text-align: right;
+            color: $color5;
+          }
+        }
+          
+    }  
+    
+    p{
+      color: $ingredient-font-color;
+      font-weight: 300;
+      font-size: 1.15rem;
+    }
+
+
+    ul.ingredients {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      
+      li {
+        display: flex;
+        color: $ingredient-font-color;
+        font-size: 1.13rem;
+        .fa {
+          color: $color4;
+          margin-right: .6rem;
+          margin-bottom: .8rem;
+        }
+      }
+
+    }
+  }
+
+}
+
+
+
+  
+  
