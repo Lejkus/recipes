@@ -1,10 +1,12 @@
 import { useState } from 'react'
 
-import { db,storage } from "../config/firebase";
-import {collection,addDoc,} from "firebase/firestore";
-import {ref,uploadBytes,} from "firebase/storage";
+import { db, storage } from "../config/firebase";
+import { collection, addDoc, doc, } from "firebase/firestore";
+import { ref, uploadBytes, } from "firebase/storage";
+import '../styles/newrecipe.scss'
 
-export default function NewRecipe() {
+
+export default function NewRecipe({ currentUser }) {
 
     const recipesCollectionRef = collection(db, "recipes");
     const constituentsCollectionRef = collection(db, 'constituents')
@@ -12,6 +14,9 @@ export default function NewRecipe() {
     const [newRecipe, setNewRecipe] = useState<RecipeType>({ name: '', preparation: '', time: '', userId: '', categories: [] })
     const [newConstituents, setNewConstituents] = useState<Array<ConstituentType>>([])
     const [newConstituent, setNewConstituent] = useState<ConstituentType>({ ingredient: '', amount: '', recipe: '' })
+
+    const [newCategories, setNewCategories] = useState<Array<String>>([])
+    const [newCategory, setNewCategory] = useState<String>('')
 
     const [fileUpload, setFileUpload] = useState(null);
     const [filesArray, setFilesArray] = useState([]);
@@ -38,10 +43,57 @@ export default function NewRecipe() {
     }
 
     const addConstituent = e => {
-        e.preventDefault()
+        //e.preventDefault()
+        if (newConstituent.ingredient && newConstituent.amount) {
+            setNewConstituents(existingValues => [...existingValues, newConstituent]);
+            setNewConstituent({ ingredient: '', amount: '', recipe: '' })
+        }
+
+
         // setNewConstituent({ ingredient: newConstituent.ingredient, amount: newConstituent.amount, recipe: '' })
-        setNewConstituents(existingValues => [...existingValues, newConstituent]);
-        setNewConstituent({ ingredient: '', amount: '', recipe: '' })
+
+    }
+
+    const addCategory = e => {
+        //e.preventDefault()
+        if (newCategory) {
+            //setNewCategories(existingValues => [...existingValues, newCategory]);
+            setNewRecipe(existingValues => ({
+                ...existingValues,
+                categories: [...existingValues.categories, newCategory],
+            }))
+            setNewCategory('')
+        }
+    }
+
+    const ButtonEffect = e => {
+        if (e.target.classList.contains("add-category")) {
+            if (newCategory) {
+                e.target.classList.add('validate')
+                setTimeout(() => {
+                    e.target.classList.remove('validate')
+                }, 1000);
+            } else {
+                e.target.classList.add('notvalidate')
+                setTimeout(() => {
+                    e.target.classList.remove('notvalidate')
+                }, 1000);
+            }
+        } else if (e.target.classList.contains("add-constituent")) {
+            if (newConstituent.amount && newConstituent.ingredient) {
+                e.target.classList.add('validate')
+                setTimeout(() => {
+                    e.target.classList.remove('validate')
+                }, 1000);
+            } else {
+                e.target.classList.add('notvalidate')
+                setTimeout(() => {
+                    e.target.classList.remove('notvalidate')
+                }, 1000);
+            }
+        }
+
+
     }
 
     const onSubmit = async e => {
@@ -53,27 +105,37 @@ export default function NewRecipe() {
                 preparation: newRecipe.preparation,
                 time: newRecipe.time,
                 categories: newRecipe.categories,
-                userId: 'auth?.currentUser?.uid',
-            }).then(function (docRef) {
+                userId: currentUser,
+            }).then(async function (docRef) {
                 console.log("Document written with ID: ", docRef.id);
 
                 // skladniki
                 if (newConstituents.length) {
+                    const recipeRef = doc(db, "recipes", docRef.id);
+
                     const updatedConstituents = newConstituents.map((constituent) => ({
                         ...constituent,
-                        recipe: `/recipes/${docRef.id}`,
+                        recipe: recipeRef,
                     }));
 
-                    setNewConstituents(updatedConstituents);
-
-                    // Dodaj dokumenty do kolekcji `constituents`
-                    updatedConstituents.forEach(async (constituent) => {
-                        await addDoc(constituentsCollectionRef, {
-                            ingredient: constituent.ingredient,
-                            amount: constituent.amount,
-                            recipe: constituent.recipe,
-                        });
+                    const addDocPromises = updatedConstituents.map((constituent) => {
+                        return addDoc(constituentsCollectionRef, constituent);
                     });
+
+                    await Promise.all(addDocPromises);
+
+                    console.log("Constituents added successfully!");
+
+                    // setNewConstituents(updatedConstituents);
+
+                    // // Dodaj dokumenty do kolekcji `constituents`
+                    // updatedConstituents.forEach(async (constituent) => {
+                    //     await addDoc(constituentsCollectionRef, {
+                    //         ingredient: constituent.ingredient,
+                    //         amount: constituent.amount,
+                    //         recipe: constituent.recipe,
+                    //     });
+                    // });
                 }
 
                 // zdjecia
@@ -95,36 +157,142 @@ export default function NewRecipe() {
 
 
     return (
-        <>
-            <form onSubmit={addConstituent}>
-                <input value={newConstituent.amount} onChange={updateConstituent} name='amount' type='text' placeholder='ilosc skladnika'></input>
-                <input value={newConstituent.ingredient} onChange={updateConstituent} name='ingredient' type='text' placeholder='nazwa skladnika'></input>
-                <button type='submit'>Add Constituent</button>
-            </form>
-            <hr></hr>
-            <div>
-                <input
-                    type="file"
-                    onChange={(e) => setFileUpload(e.target.files[0])}
-                />
-                <button
-                    onClick={(e) => setFilesArray([...filesArray, fileUpload])}
-                >
-                    {" "}
-                    Upload File{" "}
-                </button>
-            </div>
-            <hr></hr>
-            <form onSubmit={onSubmit}>
-                <input type='text' value={newRecipe.name} onChange={updateRecipe} name='name' placeholder='nazwa potrawy' ></input>
-                <input type='text' value={newRecipe.time} onChange={updateRecipe} name='time' placeholder='czas przygotowania'></input>
-                <textarea value={newRecipe.preparation} onChange={updateRecipe} name='preparation' placeholder='opisz sposób przygotowania'></textarea>
+        <div className='add-component'>
+            {currentUser ? <>
+                <div className='new-recipe'>
+                    <div className="recipe-forms">
+                        <h2><i>Dodaj tytul przepisu</i></h2>
+                        <div className="row">
+                            <div className="col-3 input-effect">
+                                <input className="effect-19" type='text' value={newRecipe.name} onChange={updateRecipe} name='name' ></input>
+                                <label>Nazwa potrawy</label>
+                                <span className="focus-border">
+                                    <i></i>
+                                </span>
+                            </div>
+                            <div className="col-3 input-effect">
+                                <input className="effect-20" type='text' value={newRecipe.time} onChange={updateRecipe} name='time' ></input>
+                                <label>Czas przygotowania</label>
+                                <span className="focus-border">
+                                    <i></i>
+                                </span>
+                            </div>
+                            <div className="col-3 input-effect">
+                                <textarea className="effect-21" value={newRecipe.preparation} onChange={updateRecipe} name='preparation' ></textarea>
+                                <label>Sposób przygotowania</label>
+                                <span className="focus-border">
+                                    <i></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <button type='submit'>Add przepis</button>
-            </form>
-            {newConstituents.length > 0 ? <>{newConstituents.map(({ amount, ingredient }) => {
-                return <div>{amount}{ingredient}</div>
-            })}</> : <></>}
-        </>
+                <div className='new-constituent'>
+                    <div className="recipe-forms">
+                        <h2><i>Dodaj skladnik</i></h2>
+                        <div className="row">
+                            <div className="col-3 input-effect">
+                                <input className="effect-19" value={newConstituent.amount} onChange={updateConstituent} name='amount' type='text'></input>
+                                <label>ilosc skladnika</label>
+                                <span className="focus-border">
+                                    <i></i>
+                                </span>
+                            </div>
+                            <div className="col-3 input-effect">
+                                <input className="effect-20" value={newConstituent.ingredient} onChange={updateConstituent} name='ingredient' type='text'></input>
+                                <label>nazwa skladnika</label>
+                                <span className="focus-border">
+                                    <i></i>
+                                </span>
+                            </div>
+                            <div className="col-3 input-effect">
+                                {/* <button onClick={addConstituent}>Dodaj składnik</button> */}
+                                <div className="button-container">
+                                    <button className='add-constituent' onClick={(e) => { ButtonEffect(e); addConstituent(e); }} id="button"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className='constituents'>
+
+                    {newConstituents.length > 0 ? <>{newConstituents.map(({ amount, ingredient }) => {
+                        return <div className='constituent'>
+                            <h3 className='title'>Ilosć: </h3><h3 >{amount}</h3>
+                            <h3 className='title'>Składnik: </h3><h3 >{ingredient}</h3>
+
+                        </div>
+                    })}</> : <></>}
+
+                </div>
+
+                <div className='new-category'>
+                    <div className="recipe-forms">
+                        <h2><i>Dodaj Kategorie</i></h2>
+                        <div className="row">
+                            <div className="col-3 input-effect">
+                                <input className="effect-19" value={newCategory} onChange={(e) => { setNewCategory(e.target.value) }} name='amount' type='text'></input>
+                                <label>Nazwa kategorii</label>
+                                <span className="focus-border">
+                                    <i></i>
+                                </span>
+                            </div>
+                            <div className="col-3 input-effect">
+                                {/* <button onClick={addConstituent}>Dodaj składnik</button> */}
+                                <div className="button-container">
+                                    <button className='add-category' onClick={(e) => { ButtonEffect(e); addCategory(e); }} id="button"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className='categories'>
+                    {newRecipe.categories.length > 0 ? <>{newRecipe.categories.map((category) => {
+
+                        return <div className='category'>{category}</div>
+                    })}</> : <></>}
+                </div>
+
+                <div className='new-images'>
+                    <div className="recipe-forms">
+                        <h2><i>Dodaj zdjecie</i></h2>
+                        <div className="row">
+                            <div className="col-3 input-effect">
+                                <input type="file" accept='image/*' onChange={(e) => setFileUpload(e.target.files[0])} />
+                                <span className="focus-border">
+                                    <i></i>
+                                </span>
+                            </div>
+
+                            <div className="col-3 input-effect">
+                                <button
+                                    onClick={(e) => setFilesArray([...filesArray, fileUpload])}
+                                >
+                                    {" "}
+                                    Upload File{" "}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className='images'>
+                    {filesArray.length > 0 ? <>{filesArray.map((file) => {
+                        return <div className='image'>{file.name}</div>
+                    })}</> : <></>}
+                    
+                </div>
+
+
+                <div className="button-container">
+                    <button className='submit' onClick={onSubmit} id="button"></button>
+                </div>
+
+            </> : <h1>Zaloguj sie aby dodac przepis!</h1>}
+
+        </div>
     )
 }

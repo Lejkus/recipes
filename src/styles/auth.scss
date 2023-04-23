@@ -13,22 +13,21 @@ $color6:#27ae60;
 
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
-* {
-	box-sizing: border-box;
-}
 
-body {
-	background: $color1;
+// body {
+// 	background: $color1;
+// 	font-family: 'Montserrat', sans-serif;
+// 	margin: 0;
+// }
+
+.auth-site{
+	height: calc(100vh - 75px);
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	font-family: 'Montserrat', sans-serif;
-	height: 100vh;
-	margin: -20px 0 50px;
-}
-
-h1 {
+	box-sizing: border-box;
+	h1 {
 	font-weight: bold;
 	margin: 0;
 }
@@ -234,3 +233,5 @@ input {
 	width: 40px;
 	cursor: pointer;
 }
+}
+

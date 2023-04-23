@@ -1,31 +1,38 @@
-$color1:#fafafa;
-$color2:#e1f6f4;
-$color3:#bfe9db;
-$color4:#1abc9c;
-$color5:#16a085;
-$color6:#27ae60;
+$color1: #fafafa;
+$color2: #e1f6f4;
+$color3: #bfe9db;
+$color4: #1abc9c;
+$color5: #16a085;
+$color6: #27ae60;
 
 
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
 
 
-$card-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+$card-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 $delete-bg: transparent;
-$header-box-shadow: 0 -9px 0 rgba(26, 188, 156,1.0);
+$header-box-shadow: 0 -9px 0 rgba(26, 188, 156, 1.0);
 $ingredient-font-color: #7f8c8d;
 
 body {
-  background-color: rgba(236, 240, 241,1.0);
   font-family: 'Montserrat', sans-serif;
   font-size: 16px;
   margin: 0;
 }
 
-.container {
-  padding: 0px 10%;
-  height: 100vh;
-  width: 80%;
+.recipes-page {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 10%;
+  background-color: $color1;
+}
+
+.recipes-container {
+  min-height: 95vh;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -39,12 +46,14 @@ body {
   width: 260px;
   height: 440px;
   overflow: hidden;
-  &:hover{
+
+  &:hover {
     .header {
       background-size: 100%;
     }
-      
+
   }
+
   .header {
     background: url(http://lorempixel.com/output/food-q-c-400-400-8.jpg) top center;
     background-size: 110%;
@@ -52,9 +61,9 @@ body {
     height: 200px;
     width: 100%;
     overflow: hidden;
-    position: relative; 
-    transition: transform 0.3s ease-in-out, background-size 0.3s ease-in-out;
-  
+    position: relative;
+    transition: background-size 0.5s ease-in-out;
+
     .edit {
       height: 50px;
       width: 50px;
@@ -69,14 +78,42 @@ body {
       transition: all .5s ease-in;
       cursor: pointer;
       z-index: 3;
+
       &:hover {
         background: $color5;
         // transform: rotate(360deg);
       }
+
       &:focus {
         outline: 0;
       }
     }
+
+    .edit2 {
+      height: 47px;
+      width: 47px;
+      position: absolute;
+      bottom: 8%;
+      left: 32%;
+      border-radius: 50%;
+      background: $color4;
+      border: 0;
+      color: #fff;
+      font-size: 1.5rem;
+      transition: all .5s ease-in;
+      cursor: pointer;
+      z-index: 3;
+
+      &:hover {
+        background: $color5;
+        // transform: rotate(360deg);
+      }
+
+      &:focus {
+        outline: 0;
+      }
+    }
+
     &:after {
       height: 100%;
       width: 130%;
@@ -89,9 +126,11 @@ body {
       box-shadow: $header-box-shadow;
     }
   }
-  .body {  
+
+  .body {
     cursor: pointer;
     padding: 15px 15px 25px 15px;
+
     .title {
       background: transparent;
       border-bottom: 1.5px solid $color6;
@@ -104,27 +143,29 @@ body {
       padding: 0 0 5px 0;
       text-decoration: none;
     }
-    .mini-container{
+
+    .mini-container {
       display: flex;
+
       h3 {
-          color: $color6;
-          font-weight: 300;
-          margin: 0;
-          margin-bottom: 15px;
-          padding: 0;
+        color: $color6;
+        font-weight: 300;
+        margin: 0;
+        margin-bottom: 15px;
+        padding: 0;
+        text-align: right;
+        width: 50%;
+        text-align: left;
+
+        &:nth-of-type(2) {
           text-align: right;
-          width: 50%;
-          text-align: left;
-            
-            &:nth-of-type(2) {
-            text-align: right;
-            color: $color5;
-          }
+          color: $color5;
         }
-          
-    }  
-    
-    p{
+      }
+
+    }
+
+    p {
       color: $ingredient-font-color;
       font-weight: 300;
       font-size: 1.15rem;
@@ -135,11 +176,12 @@ body {
       margin: 0;
       padding: 0;
       list-style: none;
-      
+
       li {
         display: flex;
         color: $ingredient-font-color;
         font-size: 1.13rem;
+
         .fa {
           color: $color4;
           margin-right: .6rem;
@@ -152,7 +194,59 @@ body {
 
 }
 
+.search {
 
+  &__container {
+    padding-top: 20px;
+    padding-bottom: 10px;
+    width: 100%;
+  }
 
-  
-  
+  &__title {
+    font-size: 22px;
+    font-weight: 900;
+    text-align: center;
+    color: #ff8b88;
+  }
+
+  &__input {
+    width: 60%;
+    max-width: 500px;
+    padding: 12px 24px;
+
+    background-color: transparent;
+    transition: transform 250ms ease-in-out;
+    font-size: 14px;
+    line-height: 18px;
+
+    color: #575756;
+    background-color: transparent;
+    /*         background-image: url(http://mihaeltomic.com/codepen/input-search/ic_search_black_24px.svg); */
+
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 18px 18px;
+    background-position: 95% center;
+    border-radius: 50px;
+    border: 1px solid #575756;
+    transition: all 250ms ease-in-out;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+
+    &::placeholder {
+      color: color(#575756 a(0.8));
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    &:hover,
+    &:focus {
+      padding: 12px 0;
+      outline: 0;
+      border: 1px solid transparent;
+      border-bottom: 1px solid #575756;
+      border-radius: 0;
+      background-position: 100% center;
+    }
+  }
+}
