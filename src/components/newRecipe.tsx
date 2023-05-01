@@ -15,10 +15,10 @@ export default function NewRecipe({ currentUser }) {
     const [newConstituents, setNewConstituents] = useState<Array<ConstituentType>>([])
     const [newConstituent, setNewConstituent] = useState<ConstituentType>({ ingredient: '', amount: '', recipe: '' })
 
-    const [newCategories, setNewCategories] = useState<Array<String>>([])
+    //const [newCategories, setNewCategories] = useState<Array<String>>([])
     const [newCategory, setNewCategory] = useState<String>('')
 
-    const [fileUpload, setFileUpload] = useState(null);
+    //const [fileUpload, setFileUpload] = useState(null);
     const [filesArray, setFilesArray] = useState([]);
 
 
@@ -164,21 +164,21 @@ export default function NewRecipe({ currentUser }) {
                         <h2><i>Dodaj tytul przepisu</i></h2>
                         <div className="row">
                             <div className="col-3 input-effect">
-                                <input className="effect-19" type='text' value={newRecipe.name} onChange={updateRecipe} name='name' ></input>
+                                <input className={newRecipe.name ? 'has-content effect-19' : 'effect-19'} type='text' value={newRecipe.name} onChange={updateRecipe} name='name' ></input>
                                 <label>Nazwa potrawy</label>
                                 <span className="focus-border">
                                     <i></i>
                                 </span>
                             </div>
                             <div className="col-3 input-effect">
-                                <input className="effect-20" type='text' value={newRecipe.time} onChange={updateRecipe} name='time' ></input>
+                                <input className={newRecipe.time ? 'has-content effect-20' : 'effect-20'} type='text' value={newRecipe.time} onChange={updateRecipe} name='time' ></input>
                                 <label>Czas przygotowania</label>
                                 <span className="focus-border">
                                     <i></i>
                                 </span>
                             </div>
                             <div className="col-3 input-effect">
-                                <textarea className="effect-21" value={newRecipe.preparation} onChange={updateRecipe} name='preparation' ></textarea>
+                                <textarea className={newRecipe.preparation ? 'has-content effect-21' : 'effect-21'} value={newRecipe.preparation} onChange={updateRecipe} name='preparation' ></textarea>
                                 <label>Sposób przygotowania</label>
                                 <span className="focus-border">
                                     <i></i>
@@ -193,14 +193,14 @@ export default function NewRecipe({ currentUser }) {
                         <h2><i>Dodaj skladnik</i></h2>
                         <div className="row">
                             <div className="col-3 input-effect">
-                                <input className="effect-19" value={newConstituent.amount} onChange={updateConstituent} name='amount' type='text'></input>
+                                <input className={newConstituent.amount ? 'has-content effect-19' : 'effect-19'} value={newConstituent.amount} onChange={updateConstituent} name='amount' type='text'></input>
                                 <label>ilosc skladnika</label>
                                 <span className="focus-border">
                                     <i></i>
                                 </span>
                             </div>
                             <div className="col-3 input-effect">
-                                <input className="effect-20" value={newConstituent.ingredient} onChange={updateConstituent} name='ingredient' type='text'></input>
+                                <input className={newConstituent.ingredient ? 'has-content effect-20' : 'effect-20'} value={newConstituent.ingredient} onChange={updateConstituent} name='ingredient' type='text'></input>
                                 <label>nazwa skladnika</label>
                                 <span className="focus-border">
                                     <i></i>
@@ -233,7 +233,7 @@ export default function NewRecipe({ currentUser }) {
                         <h2><i>Dodaj Kategorie</i></h2>
                         <div className="row">
                             <div className="col-3 input-effect">
-                                <input className="effect-19" value={newCategory} onChange={(e) => { setNewCategory(e.target.value) }} name='amount' type='text'></input>
+                                <input className={newCategory ? 'has-content effect-19' : 'effect-19'} value={newCategory} onChange={(e) => { setNewCategory(e.target.value) }} name='amount' type='text'></input>
                                 <label>Nazwa kategorii</label>
                                 <span className="focus-border">
                                     <i></i>
@@ -261,19 +261,11 @@ export default function NewRecipe({ currentUser }) {
                         <h2><i>Dodaj zdjecie</i></h2>
                         <div className="row">
                             <div className="col-3 input-effect">
-                                <input type="file" accept='image/*' onChange={(e) => setFileUpload(e.target.files[0])} />
-                                <span className="focus-border">
-                                    <i></i>
-                                </span>
-                            </div>
-
-                            <div className="col-3 input-effect">
-                                <button
-                                    onClick={(e) => setFilesArray([...filesArray, fileUpload])}
-                                >
-                                    {" "}
-                                    Upload File{" "}
-                                </button>
+                                <label className="drop-container">
+                                    <span className="drop-title">Przeciągnij tutaj</span>
+                                    lub kliknij
+                                    <input className='input-file' onChange={(e) => setFilesArray([...filesArray, e.target.files[0]])} type="file" id="images" accept="image/*" required></input>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -283,11 +275,11 @@ export default function NewRecipe({ currentUser }) {
                     {filesArray.length > 0 ? <>{filesArray.map((file) => {
                         return <div className='image'>{file.name}</div>
                     })}</> : <></>}
-                    
+
                 </div>
 
 
-                <div className="button-container">
+                <div className="button-container" style={{ marginTop: '50px' }}>
                     <button className='submit' onClick={onSubmit} id="button"></button>
                 </div>
 

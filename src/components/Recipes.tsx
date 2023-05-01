@@ -4,9 +4,13 @@ import { getDocs, collection, doc, query, where, updateDoc } from "firebase/fire
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 
 import '../styles/recipes.scss'
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Recipes({ currentUser }) {
+
+  const navigate = useNavigate()
+
   const recipesCollectionRef = collection(db, "recipes");
   const constituentsCollectionRef = collection(db, 'constituents')
 
@@ -14,17 +18,22 @@ export default function Recipes({ currentUser }) {
   const [loading, setLoading] = useState(true);
   const [elementloading, setelementLoading] = useState(null);
 
-  const [inputText, setInputText] = useState("");
+  const [seachText, setSeachText] = useState("");
+
+  const [filteredRecipes, setFilteredRecipes] = useState([]);
 
 
-  const getRecipesList = async () => {
+  const getRecipesList = async (field, values) => {
     try {
-      const querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser)));
+      let querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser)))
+      if(field  && values){
+        querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser), where('categories', 'array-contains-any',  ['vege','tanie'])));
+      }
       const recipes = [];
 
       await Promise.all(querySnapshot.docs.map(async (doc) => {
         const recipe = doc.data();
-
+        
         //skladniki
         const constituentsQuerySnapshot = await getDocs(query(constituentsCollectionRef, where("recipe", "==", doc.ref)));
         const constituents = [];
@@ -61,7 +70,7 @@ export default function Recipes({ currentUser }) {
     }
   };
 
-  const updateMovieTitle = async (id: string, data: boolean, i) => {
+  const updateRecipePublic = async (id: string, data: boolean, i) => {
     const recipeDoc = doc(db, "recipes", id);
     setelementLoading(i)
 
@@ -72,19 +81,26 @@ export default function Recipes({ currentUser }) {
 
   };
 
-  const filteredData = recipes.filter((recipe) => {
-    //if no input the return the original
+  const test = async () => {
+    getRecipesList("categories", ["vege", "tanie"])
+  }
 
-    if (inputText === '') {
-      return recipe;
-    }
-    //return the item which contains the user input
-    else {
-      return recipe.name.toLowerCase().includes(inputText.toLowerCase())
-    }
-  })
+  useEffect(() => {
+    const filteredData = recipes.filter((recipe) => {
+      //if no input the return the original
 
+      if (seachText === '') {
+        return recipe;
+      }
+      //return the item which contains the user input
+      else {
+        return recipe.name.toLowerCase().includes(seachText.toLowerCase())
+      }
+    })
 
+    setFilteredRecipes(filteredData);
+
+  }, [seachText, recipes])
 
   useEffect(() => {
     if (currentUser) {
@@ -100,21 +116,22 @@ export default function Recipes({ currentUser }) {
     <div className='recipes-page'>
       <div className="search__container">
         <center>
-          <input onChange={(e) => { setInputText(e.currentTarget.value) }} className="search__input" type="text" placeholder="Search"></input>
+          <input onChange={(e) => { setSeachText(e.currentTarget.value) }} className="search__input" type="text" placeholder="Search"></input>
         </center>
       </div>
+      <button onClick={test}>test</button>
       <div className="recipes-container">
 
         {currentUser
           ? !loading
             ? recipes.length
-              ? filteredData.length
-                ? <>{filteredData.map((recipe, i) => {
+              ? filteredRecipes.length
+                ? <>{filteredRecipes.map((recipe, i) => {
                   return <div className='recipe-card' key={i} >
                     <div className='header' style={recipe.images[0] ? { backgroundImage: `url(${recipe.images[0]})` } : { backgroundImage: `url(https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg)` }}  >
-                      <button className='edit'><i className='fa fa fa-pencil'></i></button>
-                      {recipe.public ? <button className='edit2' onClick={(event) => { updateMovieTitle(recipe.id, false, i) }}>{elementloading === i ? <i className="fa fa-spinner fa-spin"></i> : <i className='fa fa-check'></i>}</button>
-                        : <button onClick={(event) => { updateMovieTitle(recipe.id, true, i) }} className='edit2'>
+                      <button onClick={() => { navigate(`/editrecipe/${recipe.id}`) }} className='edit'><i className='fa fa fa-pencil'></i></button>
+                      {recipe.public ? <button className='edit2' onClick={(event) => { updateRecipePublic(recipe.id, false, i) }}>{elementloading === i ? <i className="fa fa-spinner fa-spin"></i> : <i className='fa fa-check'></i>}</button>
+                        : <button onClick={(event) => { updateRecipePublic(recipe.id, true, i) }} className='edit2'>
                           {elementloading === i ? <i className="fa fa-spinner fa-spin"></i> : <i className='fa fa-share'></i>}</button>}
                     </div>
                     <div className='body'>

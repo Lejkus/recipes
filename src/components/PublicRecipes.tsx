@@ -3,19 +3,13 @@ import { db, storage } from "../config/firebase";
 import {
   getDocs,
   collection,
-  addDoc,
-  deleteDoc,
-  updateDoc,
-  doc,
   query,
   where,
 } from "firebase/firestore";
 import {
   ref,
-  uploadBytes,
   listAll,
   getDownloadURL,
-  deleteObject,
 } from "firebase/storage";
 
 import '../styles/recipes.scss'
@@ -32,10 +26,12 @@ export default function PublicRecipes() {
     try {
       const querySnapshot = await getDocs(query(recipesCollectionRef, where("public", "==", true)));
       const recipes = [];
+      console.log(querySnapshot.docs);
+      
 
       await Promise.all(querySnapshot.docs.map(async (doc) => {
         const recipe = doc.data();
-
+        
         //skladniki
         const constituentsQuerySnapshot = await getDocs(query(constituentsCollectionRef, where("recipe", "==", doc.ref)));
         const constituents = [];
@@ -98,7 +94,7 @@ export default function PublicRecipes() {
 
 
           </div>
-        })}</> : <i className="fa fas fa-spinner fa-pulse" style={{ fontSize:'400px',color:'#27ae60' }}></i>}
+        })}</> : <i className="fa fas fa-spinner fa-pulse" style={{ fontSize: '400px', color: '#27ae60' }}></i>}
 
       </div>
 

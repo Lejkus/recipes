@@ -7,6 +7,7 @@ const Auth = lazy(() => import('./components/Auth'));
 const Recipes = lazy(() => import('./components/Recipes'));
 const NewRecipe = lazy(() => import('./components/newRecipe'));
 const PublicRecipes = lazy(() => import('./components/PublicRecipes'));
+const EditRecipe = lazy(() => import('./components/EditRecipe'));
 
 import { Suspense } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -36,6 +37,7 @@ function App() {
         <Route path='/public' element={<Suspense fallback={<h1>Loading</h1>}><PublicRecipes currentUser={currentUser} /></Suspense>}></Route>
         <Route path='/login' element={<Suspense fallback={<h1>Loading</h1>}><Auth /></Suspense>}></Route>
         <Route path='/new' element={<Suspense fallback={<h1>Loading</h1>}><NewRecipe currentUser={currentUser} /></Suspense>}></Route>
+        <Route path='/editrecipe/:id' element={<Suspense fallback={<h1>Loading</h1>}><EditRecipe currentUser={currentUser} /></Suspense>}></Route>
       </Routes>
     </div>
   )
