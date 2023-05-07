@@ -5,6 +5,7 @@ import { ref, listAll, getDownloadURL } from "firebase/storage";
 
 import '../styles/recipes.scss'
 import { useNavigate } from 'react-router-dom';
+import Categories from './Categories';
 
 
 export default function Recipes({ currentUser }) {
@@ -22,18 +23,23 @@ export default function Recipes({ currentUser }) {
 
   const [filteredRecipes, setFilteredRecipes] = useState([]);
 
+  const [categories, setCategories] = useState<string[]>([])
+  const [allCategories, setAllCategories] = useState([])
 
-  const getRecipesList = async (field, values) => {
+
+
+  const getRecipesList = async () => {
     try {
       let querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser)))
-      if(field  && values){
-        querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser), where('categories', 'array-contains-any',  ['vege','tanie'])));
+      if (categories.length > 0) {
+        querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser), where('categories', 'array-contains-any', categories)));
       }
       const recipes = [];
+      const allCategories2 = []
 
       await Promise.all(querySnapshot.docs.map(async (doc) => {
         const recipe = doc.data();
-        
+
         //skladniki
         const constituentsQuerySnapshot = await getDocs(query(constituentsCollectionRef, where("recipe", "==", doc.ref)));
         const constituents = [];
@@ -56,11 +62,24 @@ export default function Recipes({ currentUser }) {
         }))
 
         recipe.images = images
-
-
         recipe.id = doc.id;
+
+        if (!(allCategories.length > 0)) {
+          recipe.categories.forEach((category) => {
+            if (!allCategories2.includes(category)) {
+              allCategories2.push(category);
+            }
+          });
+        }
+
+
+
         recipes.push(recipe);
       }));
+
+      if (!(allCategories.length > 0)) {
+        setAllCategories(allCategories2)
+      }
 
       setRecipes(recipes);
       setLoading(false)
@@ -81,9 +100,7 @@ export default function Recipes({ currentUser }) {
 
   };
 
-  const test = async () => {
-    getRecipesList("categories", ["vege", "tanie"])
-  }
+
 
   useEffect(() => {
     const filteredData = recipes.filter((recipe) => {
@@ -109,7 +126,7 @@ export default function Recipes({ currentUser }) {
       setRecipes([])
       // setLoading(false)
     }
-  }, [currentUser])
+  }, [currentUser, categories])
 
 
   return (
@@ -119,7 +136,8 @@ export default function Recipes({ currentUser }) {
           <input onChange={(e) => { setSeachText(e.currentTarget.value) }} className="search__input" type="text" placeholder="Search"></input>
         </center>
       </div>
-      <button onClick={test}>test</button>
+      <Categories allCategories={allCategories} categories={categories} setCategories={setCategories} />
+
       <div className="recipes-container">
 
         {currentUser
