@@ -12,9 +12,15 @@ $button-color:#1ECD97;
 * {
     font-family: 'Montserrat', sans-serif;
 }
+.add-component-container{
+    display: flex;
+    justify-content: center;
+}
 
 .add-component {
-    padding: 2% 10%;
+    padding: 50px 0;
+    width: 100%;
+    max-width: 1700px;
     .constituents {
         display: flex;
         flex-direction: column;

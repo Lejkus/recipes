@@ -1,15 +1,22 @@
-import { useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { db, storage } from "../config/firebase";
-import { getDocs, collection, doc, query, where, updateDoc } from "firebase/firestore";
+import { getDocs, collection, doc, query, where, updateDoc, orderBy } from "firebase/firestore";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 
 import '../styles/recipes.scss'
 import { useNavigate } from 'react-router-dom';
 import Categories from './Categories';
 
+// @ts-ignore
+import SwitchSelector from "react-switch-selector";
+import RecipesComponent from './RecipesComponent';
+
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUtensils } from '@fortawesome/free-solid-svg-icons';
+
 
 export default function Recipes({ currentUser }) {
-
   const navigate = useNavigate()
 
   const recipesCollectionRef = collection(db, "recipes");
@@ -26,16 +33,33 @@ export default function Recipes({ currentUser }) {
   const [categories, setCategories] = useState<string[]>([])
   const [allCategories, setAllCategories] = useState([])
 
+  const [currentPage, setCurrentPage] = useState('my')
 
+  const [isPending, startTransition] = useTransition();
 
   const getRecipesList = async () => {
     try {
-      let querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser)))
-      if (categories.length > 0) {
-        querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser), where('categories', 'array-contains-any', categories)));
+      let querySnapshot = []
+      if (currentPage === 'my') {
+        querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser)));
+        if (categories.length > 0) {
+          querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser), where('categories', 'array-contains-any', categories)));
+        }
+
+      } else {
+        querySnapshot = await getDocs(query(recipesCollectionRef, where("public", "==", true), where("usersShared", "array-contains", currentUser)));
+        // if (categories.length > 0) {
+        //   //do naprawy
+        //   querySnapshot = await getDocs(query(recipesCollectionRef, where("usersShared", "array-contains", currentUser), where('categories', 'array-contains-any', categories)));
+        // }
       }
+
+
+
       const recipes = [];
       const allCategories2 = []
+
+
 
       await Promise.all(querySnapshot.docs.map(async (doc) => {
         const recipe = doc.data();
@@ -100,24 +124,21 @@ export default function Recipes({ currentUser }) {
 
   };
 
-
-
-  useEffect(() => {
+  const filterRecipes = useCallback(() => {
     const filteredData = recipes.filter((recipe) => {
-      //if no input the return the original
-
       if (seachText === '') {
         return recipe;
-      }
-      //return the item which contains the user input
-      else {
+      } else {
         return recipe.name.toLowerCase().includes(seachText.toLowerCase())
       }
     })
 
     setFilteredRecipes(filteredData);
+  }, [seachText, recipes]);
 
-  }, [seachText, recipes])
+  useEffect(() => {
+    filterRecipes();
+  }, [filterRecipes]);
 
   useEffect(() => {
     if (currentUser) {
@@ -128,59 +149,70 @@ export default function Recipes({ currentUser }) {
     }
   }, [currentUser, categories])
 
+  useEffect(() => {
+    if (currentUser) {
+      setLoading(true)
+      setRecipes([])
+      getRecipesList()
+    } else {
+      setRecipes([])
+      // setLoading(false)
+    }
+  }, [currentPage])
+
+
+  const onChange = (newValue: string) => {
+    startTransition(() => {
+      setCurrentPage(newValue);
+    })
+
+  };
 
   return (
-    <div className='recipes-page'>
-      <div className="search__container">
-        <center>
-          <input onChange={(e) => { setSeachText(e.currentTarget.value) }} className="search__input" type="text" placeholder="Search"></input>
-        </center>
-      </div>
-      <Categories allCategories={allCategories} categories={categories} setCategories={setCategories} />
+    <div className='recipes-page-container'>
+      
+      <div className='recipes-page'>
+        <div className="search__container">
+          <div className="your-required-wrapper" style={{ width: 200, height: 50,fontSize:'19px' }}>
+            <SwitchSelector
+              onChange={onChange}
+              options={[
+                {
+                  label: "Moje",
+                  value: 'my',
+                  selectedBackgroundColor: isPending ? "red" : '#27ae60'
+                },
+                {
+                  label: "Zapisane",
+                  value: "saved",
+                  selectedBackgroundColor: isPending ? "red" : '#27ae60'
+                }
+              ]}
+              initialSelectedIndex={0}
+              backgroundColor={"#e1f6f4"}
+              fontColor={"black"}
+            />
+          </div>
+          <input onChange={(e) => { setSeachText(e.currentTarget.value) }} className="search__input" type="text" placeholder="Szukaj"></input>
+        </div>
+        {recipes.length?<Categories allCategories={allCategories} categories={categories} setCategories={setCategories} />:<></>}
+        
 
-      <div className="recipes-container">
-
-        {currentUser
-          ? !loading
-            ? recipes.length
-              ? filteredRecipes.length
-                ? <>{filteredRecipes.map((recipe, i) => {
-                  return <div className='recipe-card' key={i} >
-                    <div className='header' style={recipe.images[0] ? { backgroundImage: `url(${recipe.images[0]})` } : { backgroundImage: `url(https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg)` }}  >
-                      <button onClick={() => { navigate(`/editrecipe/${recipe.id}`) }} className='edit'><i className='fa fa fa-pencil'></i></button>
-                      {recipe.public ? <button className='edit2' onClick={(event) => { updateRecipePublic(recipe.id, false, i) }}>{elementloading === i ? <i className="fa fa-spinner fa-spin"></i> : <i className='fa fa-check'></i>}</button>
-                        : <button onClick={(event) => { updateRecipePublic(recipe.id, true, i) }} className='edit2'>
-                          {elementloading === i ? <i className="fa fa-spinner fa-spin"></i> : <i className='fa fa-share'></i>}</button>}
-                    </div>
-                    <div className='body'>
-                      <p className='title'>{recipe.name}</p>
-                      <div className='mini-container'>
-                        <h3>Składniki:</h3>
-                        <h3>{recipe.time}</h3>
-                      </div>
-
-                      <ul className='ingredients'>
-                        {recipe.constituents.length ? recipe.constituents.slice(0, 3).map(({ ingredient }, i) => {
-                          return <li key={i}><i className='fa fa fa-shopping-cart '></i>{ingredient}</li>
-                        }) : <p>Brak dodanych składników</p>}
-
-                      </ul>
-                    </div>
-
-
-                  </div>
-                })}</>
-                : <h1>Nie znaleziono takiego przepisu</h1>
-              : <h1>Brak dodanych przepisów</h1>
-            : <i className="fa fas fa-spinner fa-pulse" style={{ fontSize: '350px', color: '#27ae60', marginTop: '100px' }}></i>
-          : <h1>Zaloguj sie aby zobaczyć swoje przepisy!</h1>}
-
+        <div className="recipes-container">
+          {currentUser
+            ? !loading
+              ? recipes.length
+                ? filteredRecipes.length ?
+                  <>
+                    {currentPage === 'my' && <RecipesComponent page={currentPage} currentUser={currentUser} recipes={filteredRecipes} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />}
+                    {currentPage === 'saved' && <RecipesComponent page={currentPage} currentUser={currentUser} recipes={filteredRecipes} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />}
+                  </>
+                  : <h1>Nie znaleziono takiego przepisu</h1>
+                : <h1>Brak dodanych przepisów</h1>
+              :<FontAwesomeIcon icon={faUtensils} shake style={{ fontSize: '350px', color: '#27ae60', marginTop: '20%' }}/>
+            : <h1>Zaloguj sie aby zobaczyć swoje przepisy!</h1>}
+        </div>
       </div>
     </div>
-
   )
 }
-
-
-// {/* <img style={{ width: '200px' }} src={recipe.images[0]} alt={recipe.images[0]} />
-//           <p className='p'>{recipe.preparation}</p> */}
