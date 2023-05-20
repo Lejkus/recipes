@@ -7,20 +7,48 @@ $color6: #27ae60;
 
 $gray: #bbbbbb;
 
-$button-color:#1ECD97;
+$button-color: #1ECD97;
 
 * {
     font-family: 'Montserrat', sans-serif;
 }
-.add-component-container{
+
+.add-component-container {
     display: flex;
     justify-content: center;
+
+    h2 {
+        font-weight: 400;
+        color: $color5;
+        font-size: 60px;
+        text-align: center;
+        position: relative;
+        font-family: 'Brush Script MT', cursive !important;
+
+        &::before {
+            position: absolute;
+            content: '';
+            width: 100%;
+            left: 0;
+            top: 22px;
+            background: #4caf50;
+            height: 1px;
+        }
+
+        i {
+            font-style: normal;
+            background: #fff;
+            position: relative;
+            padding: 10px;
+        }
+    }
 }
 
 .add-component {
     padding: 50px 0;
     width: 100%;
     max-width: 1700px;
+
     .constituents {
         display: flex;
         flex-direction: column;
@@ -388,36 +416,13 @@ $button-color:#1ECD97;
         color: #4caf50;
         transition: 0.3s;
     }
+
     :focus {
         outline: none;
     }
 }
 
-h2 {
-    font-weight: 400;
-    color: $color5;
-    font-size: 60px;
-    text-align: center;
-    position: relative;
-    font-family: 'Brush Script MT', cursive !important;
 
-    &::before {
-        position: absolute;
-        content: '';
-        width: 100%;
-        left: 0;
-        top: 22px;
-        background: #4caf50;
-        height: 1px;
-    }
-
-    i {
-        font-style: normal;
-        background: #fff;
-        position: relative;
-        padding: 10px;
-    }
-}
 
 
 .button-container {
@@ -533,7 +538,7 @@ h2 {
     cursor: pointer;
     transition: background .2s ease-in-out, border .2s ease-in-out;
 
-    &:focus{
+    &:focus {
         outline: none;
     }
 

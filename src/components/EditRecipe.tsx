@@ -10,7 +10,7 @@ import { useParams } from 'react-router-dom';
 interface RecipeType { id: string, name: string, preparation: string, time: string, userId: string, categories: Array<String> }
 interface ConstituentType { ingredient: string, recipe: string, amount: string, id: string }
 
-export default function EditRecipe({ currentUser }) {
+export default function EditRecipe({ currentUser }:{currentUser:string}) {
     const { id } = useParams();
 
     const [loading, setLoading] = useState(true);

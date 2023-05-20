@@ -20,7 +20,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faEraser } from '@fortawesome/free-solid-svg-icons';
 
 
-export default function PublicRecipes({ currentUser }) {
+export default function PublicRecipes({ currentUser }:{currentUser:string}) {
   const recipesCollectionRef = collection(db, "recipes");
   const constituentsCollectionRef = collection(db, 'constituents')
 

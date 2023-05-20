@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { db, storage } from "../config/firebase";
-import { getDocs, collection, doc, query, where, updateDoc, orderBy } from "firebase/firestore";
+import { getDocs, collection, doc, query, where, updateDoc, orderBy, QuerySnapshot } from "firebase/firestore";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 
 import '../styles/recipes.scss'
@@ -11,18 +11,18 @@ import Categories from './Categories';
 import SwitchSelector from "react-switch-selector";
 import RecipesComponent from './RecipesComponent';
 
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUtensils } from '@fortawesome/free-solid-svg-icons';
 
+import { RecipeType,ConstituentType } from '../types/types';
 
-export default function Recipes({ currentUser }) {
+export default function Recipes({ currentUser }:{currentUser:string}) {
   const navigate = useNavigate()
 
   const recipesCollectionRef = collection(db, "recipes");
   const constituentsCollectionRef = collection(db, 'constituents')
 
-  const [recipes, setRecipes] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<RecipeType[]>([]);
   const [loading, setLoading] = useState(true);
   const [elementloading, setelementLoading] = useState(null);
 
@@ -31,7 +31,7 @@ export default function Recipes({ currentUser }) {
   const [filteredRecipes, setFilteredRecipes] = useState([]);
 
   const [categories, setCategories] = useState<string[]>([])
-  const [allCategories, setAllCategories] = useState([])
+  const [allCategories, setAllCategories] = useState<string[]>([])
 
   const [currentPage, setCurrentPage] = useState('my')
 
@@ -39,7 +39,7 @@ export default function Recipes({ currentUser }) {
 
   const getRecipesList = async () => {
     try {
-      let querySnapshot = []
+      let querySnapshot: QuerySnapshot<any> = []
       if (currentPage === 'my') {
         querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser)));
         if (categories.length > 0) {
@@ -54,19 +54,15 @@ export default function Recipes({ currentUser }) {
         // }
       }
 
-
-
-      const recipes = [];
-      const allCategories2 = []
-
-
+      const recipes:RecipeType[] = [];
+      const allCategories2:string[] = []
 
       await Promise.all(querySnapshot.docs.map(async (doc) => {
         const recipe = doc.data();
 
         //skladniki
         const constituentsQuerySnapshot = await getDocs(query(constituentsCollectionRef, where("recipe", "==", doc.ref)));
-        const constituents = [];
+        const constituents:ConstituentType[] = [];
 
 
         constituentsQuerySnapshot.forEach((doc) => {
@@ -77,7 +73,7 @@ export default function Recipes({ currentUser }) {
 
         //zdjecia
         const imagesListRef = ref(storage, `images/${doc.id}/`);
-        const images = []
+        const images:string[] = []
 
         const imagesrefs = await listAll(imagesListRef);
         await Promise.all(imagesrefs.items.reverse().map(async (item) => {
@@ -89,14 +85,12 @@ export default function Recipes({ currentUser }) {
         recipe.id = doc.id;
 
         if (!(allCategories.length > 0)) {
-          recipe.categories.forEach((category) => {
+          recipe.categories.forEach((category:string) => {
             if (!allCategories2.includes(category)) {
               allCategories2.push(category);
             }
           });
         }
-
-
 
         recipes.push(recipe);
       }));
@@ -104,7 +98,6 @@ export default function Recipes({ currentUser }) {
       if (!(allCategories.length > 0)) {
         setAllCategories(allCategories2)
       }
-
       setRecipes(recipes);
       setLoading(false)
 
@@ -165,15 +158,13 @@ export default function Recipes({ currentUser }) {
     startTransition(() => {
       setCurrentPage(newValue);
     })
-
   };
 
   return (
     <div className='recipes-page-container'>
-      
       <div className='recipes-page'>
         <div className="search__container">
-          <div className="your-required-wrapper" style={{ width: 200, height: 50,fontSize:'19px' }}>
+          <div className="your-required-wrapper" style={{ width: 200, height: 50, fontSize: '19px' }}>
             <SwitchSelector
               onChange={onChange}
               options={[
@@ -195,8 +186,8 @@ export default function Recipes({ currentUser }) {
           </div>
           <input onChange={(e) => { setSeachText(e.currentTarget.value) }} className="search__input" type="text" placeholder="Szukaj"></input>
         </div>
-        {recipes.length?<Categories allCategories={allCategories} categories={categories} setCategories={setCategories} />:<></>}
-        
+        {recipes.length ? <Categories allCategories={allCategories} categories={categories} setCategories={setCategories} /> : <></>}
+
 
         <div className="recipes-container">
           {currentUser
@@ -209,7 +200,7 @@ export default function Recipes({ currentUser }) {
                   </>
                   : <h1>Nie znaleziono takiego przepisu</h1>
                 : <h1>Brak dodanych przepisów</h1>
-              :<FontAwesomeIcon icon={faUtensils} shake style={{ fontSize: '350px', color: '#27ae60', marginTop: '20%' }}/>
+              : <FontAwesomeIcon icon={faUtensils} shake style={{ fontSize: '350px', color: '#27ae60', marginTop: '20%' }} />
             : <h1>Zaloguj sie aby zobaczyć swoje przepisy!</h1>}
         </div>
       </div>

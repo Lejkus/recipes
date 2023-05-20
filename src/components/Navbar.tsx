@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
-export default function Navbar({ currentUser }) {
+export default function Navbar({ currentUser }:{currentUser:string}) {
 
   const [visible, setVisible] = useState(false)
 

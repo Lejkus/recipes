@@ -1,17 +1,18 @@
-import { useState } from 'react'
+import { ChangeEvent,MouseEvent, useState } from 'react'
 
 import { db, storage } from "../config/firebase";
 import { collection, addDoc, doc, } from "firebase/firestore";
 import { ref, uploadBytes, } from "firebase/storage";
 import '../styles/newrecipe.scss'
 
+import { RecipeType,ConstituentType } from '../types/types';
 
-export default function NewRecipe({ currentUser }) {
+export default function NewRecipe({ currentUser }:{currentUser:string}) {
 
     const recipesCollectionRef = collection(db, "recipes");
     const constituentsCollectionRef = collection(db, 'constituents')
 
-    const [newRecipe, setNewRecipe] = useState<RecipeType>({ name: '', preparation: '', time: '', userId: '', categories: [] })
+    const [newRecipe, setNewRecipe] = useState<RecipeType>({ name: '', preparation: '', time: '', userId: '', categories: [],usersShared:[] })
     const [newConstituents, setNewConstituents] = useState<Array<ConstituentType>>([])
     const [newConstituent, setNewConstituent] = useState<ConstituentType>({ ingredient: '', amount: '', recipe: '' })
 
@@ -21,20 +22,16 @@ export default function NewRecipe({ currentUser }) {
     //const [fileUpload, setFileUpload] = useState(null);
     const [filesArray, setFilesArray] = useState([]);
 
-
-    interface RecipeType { name: string, preparation: string, time: string, userId: string, categories: Array<String> }
-    interface ConstituentType { ingredient: string, recipe: string, amount: string }
-
-    const updateRecipe = e => {
-        const fieldName = e.target.name
+    
+    const updateRecipe = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
+        const fieldName = e.target.name;
         setNewRecipe(existingValues => ({
-            ...existingValues,
-            [fieldName]: e.target.value,
-        }))
+          ...existingValues,
+          [fieldName]: e.target.value,
+        }));
+      };
 
-    }
-
-    const updateConstituent = e => {
+    const updateConstituent = (e: ChangeEvent<HTMLInputElement>) => {
         const fieldName = e.target.name
         setNewConstituent(existingValues => ({
             ...existingValues,
@@ -42,7 +39,7 @@ export default function NewRecipe({ currentUser }) {
         }))
     }
 
-    const addConstituent = e => {
+    const addConstituent = (e: MouseEvent<HTMLInputElement>) => {
         //e.preventDefault()
         if (newConstituent.ingredient && newConstituent.amount) {
             setNewConstituents(existingValues => [...existingValues, newConstituent]);
@@ -50,7 +47,7 @@ export default function NewRecipe({ currentUser }) {
         }
     }
 
-    const addCategory = e => {
+    const addCategory = (e: MouseEvent<HTMLInputElement>) => {
         //e.preventDefault()
         if (newCategory) {
             //setNewCategories(existingValues => [...existingValues, newCategory]);
@@ -62,7 +59,7 @@ export default function NewRecipe({ currentUser }) {
         }
     }
 
-    const ButtonEffect = e => {
+    const ButtonEffect = (e: MouseEvent<HTMLInputElement>) => {
         if (e.target.classList.contains("add-category")) {
             if (newCategory) {
                 e.target.classList.add('validate')
@@ -92,7 +89,7 @@ export default function NewRecipe({ currentUser }) {
 
     }
 
-    const onSubmit = async e => {
+    const onSubmit = async (e: MouseEvent<HTMLInputElement>) => {
         e.preventDefault()
 
         try {
@@ -103,6 +100,7 @@ export default function NewRecipe({ currentUser }) {
                 categories: newRecipe.categories,
                 userId: currentUser,
                 public:false,
+                usersShared:[]
             }).then(async function (docRef) {
                 console.log("Document written with ID: ", docRef.id);
 

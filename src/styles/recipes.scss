@@ -9,7 +9,6 @@ $color6: #27ae60;
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
 
-
 $card-box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 $delete-bg: transparent;
 $header-box-shadow: 0 -9px 0 rgba(26, 188, 156, 1.0);
@@ -202,8 +201,6 @@ body {
 
 
 
-
-
 .search {
 
   &__container {
@@ -284,6 +281,7 @@ body {
     background-color: $color2;
     border: none;
     font-size: 16px;
+    border-radius: 3px;
 
     &-active {
       padding: 10px;
@@ -294,6 +292,7 @@ body {
       border: 1px solid black;
       color: rgb(40, 40, 40);
       font-size: 16px;
+      border-radius: 3px;
     }
   }
 
