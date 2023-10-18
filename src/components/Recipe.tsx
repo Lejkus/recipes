@@ -85,8 +85,7 @@ export default function Recipe({ currentUser }:{currentUser:string}) {
     }
   }, [])
 
-
-
+  
   return (
     <div className='recipe-page-container'>
       <div className='recipe-page'>

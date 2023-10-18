@@ -17,7 +17,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [activeSite, setActiveSite] = useState("");
 
-  const signUp = async (e) => {
+  const signUp = async (e: Event) => {
     e.preventDefault();
     if (email && password) {
       await createUserWithEmailAndPassword(auth, email, password)
@@ -33,12 +33,14 @@ export default function Auth() {
     }
 
   };
-  const signIn = async (e) => {
+  const signIn = async (e: Event) => {
     e.preventDefault();
     if (email && password) {
       await signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
-          alert(userCredential)
+          alert("Pomyślnie się zalogowano")
+          //console.log(userCredential);
+          navigate('/')
         })
         .catch((error) => {
           alert(error.message);
@@ -51,8 +53,8 @@ export default function Auth() {
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider).then(()=>{
-        //navigate('/')
+      await signInWithPopup(auth, googleProvider).then(() => {
+        navigate('/')
       });
     } catch (err) {
       console.error(err);
