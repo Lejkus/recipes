@@ -4,11 +4,11 @@ import 'font-awesome/css/font-awesome.min.css';
 import Navbar from './components/Navbar';
 
 const Auth = lazy(() => import('./components/Auth'));
-const Recipes = lazy(() => import('./components/Recipes'));
-const NewRecipe = lazy(() => import('./components/newRecipe'));
-const PublicRecipes = lazy(() => import('./components/PublicRecipes'));
-const EditRecipe = lazy(() => import('./components/EditRecipe'));
-const Recipe = lazy(() => import('./components/Recipe'));
+const Recipes = lazy(() => import('./pages/PrivateRecipesPage'));
+const NewRecipe = lazy(() => import('./pages/NewRecipePage'));
+const PublicRecipes = lazy(() => import('./pages/PublicRecipesPage'));
+const EditRecipe = lazy(() => import('./pages/EditRecipePage'));
+const Recipe = lazy(() => import('./pages/SingleRecipePage'));
 
 
 import { Suspense } from 'react';
@@ -18,7 +18,7 @@ import { auth } from './config/firebase';
 function App() {
 
   const [currentUser, setCurrentUser] = useState(null);
-  
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -33,7 +33,7 @@ function App() {
 
   return (
     <div className="App">
-      <Navbar currentUser={currentUser}/>
+      <Navbar currentUser={currentUser} />
       <Routes>
         <Route path='/' element={<Suspense fallback={<h1>Loading</h1>}><Recipes currentUser={currentUser} /></Suspense>}></Route>
         <Route path='/public' element={<Suspense fallback={<h1>Loading</h1>}><PublicRecipes currentUser={currentUser} /></Suspense>}></Route>
@@ -41,6 +41,7 @@ function App() {
         <Route path='/new' element={<Suspense fallback={<h1>Loading</h1>}><NewRecipe currentUser={currentUser} /></Suspense>}></Route>
         <Route path='/editrecipe/:id' element={<Suspense fallback={<h1>Loading</h1>}><EditRecipe currentUser={currentUser} /></Suspense>}></Route>
         <Route path='/recipe/:id' element={<Suspense fallback={<h1>Loading</h1>}><Recipe currentUser={currentUser} /></Suspense>}></Route>
+        <Route path='public/recipe/:id' element={<Suspense fallback={<h1>Loading</h1>}><Recipe currentUser={currentUser} /></Suspense>}></Route>
       </Routes>
     </div>
   )

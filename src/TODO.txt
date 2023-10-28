@@ -2,4 +2,5 @@
 2. Uporządkować aby Pages i Components były osobno
 3. Poprawić TS
 4. Postarać się pofragmentować kod na mniejsze kawałki
+5.sortowanie przepisów
 

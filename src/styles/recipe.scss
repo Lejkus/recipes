@@ -228,6 +228,10 @@ body {
                     color: white;
                     background: $color6;
                 }
+                &:disabled{
+                    background: #fff;
+                    color: $color6;
+                }
             }
         }
 

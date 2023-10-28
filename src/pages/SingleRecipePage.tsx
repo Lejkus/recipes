@@ -11,11 +11,11 @@ import { faStar, faStarHalfStroke, faUsers, faUtensils } from '@fortawesome/free
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faComment, faStar as faStarEmpty } from '@fortawesome/fontawesome-free-regular'
 
-import AddReview from './AddReview';
-import { renderStars } from './AddReview';
+import AddReview from '../components/AddReview';
+import { renderStars } from '../components/AddReview';
 
 
-export default function Recipe({ currentUser }:{currentUser:string}) {
+export default function Recipe({ currentUser }: { currentUser: string }) {
   const { id } = useParams();
   const [recipe, setRecipe] = useState<RecipeType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -85,7 +85,7 @@ export default function Recipe({ currentUser }:{currentUser:string}) {
     }
   }, [])
 
-  
+
   return (
     <div className='recipe-page-container'>
       <div className='recipe-page'>
@@ -116,7 +116,7 @@ export default function Recipe({ currentUser }:{currentUser:string}) {
                 </div>
                 <div className='image-container-page'>
                   <div className='image-container'>
-                    <img src={recipe.images[0]?recipe.images[0]:'https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg'}></img>
+                    <img src={recipe.images[0] ? recipe.images[0] : 'https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg'}></img>
                   </div>
                 </div>
               </div>

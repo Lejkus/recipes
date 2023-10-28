@@ -2,8 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
-
-export default function RecipesComponent({ page, currentUser, recipes, elementloading, updateRecipePublic }) {
+export default function RecipesComponent({ page, recipes, elementloading, updateRecipePublic }) {
     const navigate = useNavigate()
     return (
         <>{recipes.map((recipe, i) => {
@@ -16,7 +15,7 @@ export default function RecipesComponent({ page, currentUser, recipes, elementlo
                                 {elementloading === i ? <i className="fa fa-spinner fa-spin"></i> : <i className='fa fa-share'></i>}</button>}</> : <></>}
 
                 </div>
-                <Link style={{textDecoration:"none"}} to={`recipe/${recipe.id}`}>
+                <Link style={{ textDecoration: "none" }} to={`recipe/${recipe.id}`}>
                     <div className='body'>
                         <p className='title'>{recipe.name}</p>
                         <div className='mini-container'>
@@ -25,14 +24,13 @@ export default function RecipesComponent({ page, currentUser, recipes, elementlo
                         </div>
 
                         <ul className='ingredients'>
-                            {recipe.constituents.length ? recipe.constituents.slice(0, 3).map(({ ingredient }, i) => {
+                            {recipe.constituents.length ? recipe.constituents.slice(0, 3).map(({ ingredient }: { ingredient: string }, i: number) => {
                                 return <li key={i}><i className='fa fa fa-shopping-cart '></i>{ingredient}</li>
                             }) : <p>Brak dodanych składników</p>}
 
                         </ul>
                     </div>
                 </Link>
-
             </div>
         })}</>
     )

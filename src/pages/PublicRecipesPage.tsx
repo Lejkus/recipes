@@ -15,7 +15,6 @@ import {
 } from "firebase/storage";
 
 import '../styles/recipes.scss'
-import NewRecipe from './newRecipe';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faEraser } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
@@ -26,10 +25,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string }) 
   const constituentsCollectionRef = collection(db, 'constituents')
 
   const [recipes, setRecipes] = useState<any[]>([]);
-  
-  // if (window.location.pathname === '/public/recipe/7oERKesd5vUxMsJQv4Pe') {
-  //   return <Redirect to="/recipe/7oERKesd5vUxMsJQv4Pe" />;
-  // }
+
 
   const getRecipesList = async () => {
     try {
@@ -107,13 +103,15 @@ export default function PublicRecipes({ currentUser }: { currentUser: string }) 
   return (
     <div className='recipes-page-container'>
       <div className='recipes-page'>
+
+
         <div className="recipes-container">
           {recipes.length ? <>{recipes.map((recipe, i) => {
             return <div className='recipe-card' key={i} >
               <div className='header' style={recipe.images[0] ? { backgroundImage: `url(${recipe.images[0]})` } : { backgroundImage: `url(https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg)` }}  >
                 {recipe.userId !== currentUser ? recipe.usersShared && recipe.usersShared.includes(currentUser) ? <button className='edit' onClick={() => { deleteRecipeFromSaved(recipe) }}><FontAwesomeIcon icon={faEraser} /></button> : <button className='edit' onClick={() => { addRecipeToSaved(recipe) }}><FontAwesomeIcon icon={faDownload} /></button> : <></>}
               </div>
-              {/* <Link style={{ textDecoration: "none" }} to={`recipe/${recipe.id}`}> */}
+              <Link style={{ textDecoration: "none" }} to={`recipe/${recipe.id}`}>
                 <div className='body'>
                   <p className='title'>{recipe.name}</p>
                   <div className='mini-container'>
@@ -128,12 +126,13 @@ export default function PublicRecipes({ currentUser }: { currentUser: string }) 
 
                   </ul>
                 </div>
-              {/* </Link> */}
+              </Link>
 
             </div>
           })}</> : <i className="fa fas fa-spinner fa-pulse" style={{ fontSize: '400px', color: '#27ae60' }}></i>}
 
         </div>
+
       </div>
     </div>
 

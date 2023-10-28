@@ -18,12 +18,10 @@ export default function Categories({ allCategories, categories, setCategories }:
 
   return (
     <>
-      <div className='categories-container' >
-        <button className={categories.length === 0 ? 'categories-button-active' : 'categories-button '} onClick={() => setCategories([])}>Wszystkie</button>
-        {allCategories.map((category, i) => {
-          return <button key={i} className={categories.includes(category) ? 'categories-button-active' : 'categories-button'} onClick={() => handleCategoryClick(category)}>{category}</button>
-        })}
-      </div>
+      <button className={categories.length === 0 ? 'categories-button-active' : 'categories-button '} onClick={() => setCategories([])}>Wszystkie</button>
+      {allCategories.map((category, i) => {
+        return <button key={i} className={categories.includes(category) ? 'categories-button-active' : 'categories-button'} onClick={() => handleCategoryClick(category)}>{category}</button>
+      })}
     </>
   );
 }

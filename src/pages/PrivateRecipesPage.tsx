@@ -1,23 +1,21 @@
-import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { db, storage } from "../config/firebase";
 import { getDocs, collection, doc, query, where, updateDoc, orderBy, QuerySnapshot } from "firebase/firestore";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 
 import '../styles/recipes.scss'
-import { useNavigate } from 'react-router-dom';
-import Categories from './Categories';
+import Categories from '../components/RecipesPage/Categories';
 
 // @ts-ignore
-import SwitchSelector from "react-switch-selector";
-import RecipesComponent from './RecipesComponent';
+import RecipesComponent from '../components/RecipesPage/RecipesComponent';
+import SearchBar from '../components/RecipesPage/SearchBar'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUtensils } from '@fortawesome/free-solid-svg-icons';
 
-import { RecipeType,ConstituentType } from '../types/types';
+import { RecipeType, ConstituentType } from '../types/types';
 
-export default function Recipes({ currentUser }:{currentUser:string}) {
-  const navigate = useNavigate()
+export default function Recipes({ currentUser }: { currentUser: string }) {
 
   const recipesCollectionRef = collection(db, "recipes");
   const constituentsCollectionRef = collection(db, 'constituents')
@@ -28,14 +26,13 @@ export default function Recipes({ currentUser }:{currentUser:string}) {
 
   const [seachText, setSeachText] = useState("");
 
-  const [filteredRecipes, setFilteredRecipes] = useState([]);
+  const [filteredRecipes, setFilteredRecipes] = useState<RecipeType[]>([]);
 
   const [categories, setCategories] = useState<string[]>([])
   const [allCategories, setAllCategories] = useState<string[]>([])
 
   const [currentPage, setCurrentPage] = useState('my')
 
-  const [isPending, startTransition] = useTransition();
 
   const getRecipesList = async () => {
     try {
@@ -54,15 +51,15 @@ export default function Recipes({ currentUser }:{currentUser:string}) {
         // }
       }
 
-      const recipes:RecipeType[] = [];
-      const allCategories2:string[] = []
+      const recipes: RecipeType[] = [];
+      const allCategories2: string[] = []
 
       await Promise.all(querySnapshot.docs.map(async (doc) => {
         const recipe = doc.data();
 
         //skladniki
         const constituentsQuerySnapshot = await getDocs(query(constituentsCollectionRef, where("recipe", "==", doc.ref)));
-        const constituents:ConstituentType[] = [];
+        const constituents: ConstituentType[] = [];
 
 
         constituentsQuerySnapshot.forEach((doc) => {
@@ -73,7 +70,7 @@ export default function Recipes({ currentUser }:{currentUser:string}) {
 
         //zdjecia
         const imagesListRef = ref(storage, `images/${doc.id}/`);
-        const images:string[] = []
+        const images: string[] = []
 
         const imagesrefs = await listAll(imagesListRef);
         await Promise.all(imagesrefs.items.reverse().map(async (item) => {
@@ -85,7 +82,7 @@ export default function Recipes({ currentUser }:{currentUser:string}) {
         recipe.id = doc.id;
 
         if (!(allCategories.length > 0)) {
-          recipe.categories.forEach((category:string) => {
+          recipe.categories.forEach((category: string) => {
             if (!allCategories2.includes(category)) {
               allCategories2.push(category);
             }
@@ -120,7 +117,7 @@ export default function Recipes({ currentUser }:{currentUser:string}) {
   const filterRecipes = useCallback(() => {
     const filteredData = recipes.filter((recipe) => {
       if (seachText === '') {
-        return recipe;
+        return true;
       } else {
         return recipe.name.toLowerCase().includes(seachText.toLowerCase())
       }
@@ -154,40 +151,21 @@ export default function Recipes({ currentUser }:{currentUser:string}) {
   }, [currentPage])
 
 
-  const onChange = (newValue: string) => {
-    startTransition(() => {
-      setCurrentPage(newValue);
-    })
-  };
+  const onSwitchChange = useCallback((newValue: string) => {
+    setCurrentPage(newValue);
+  }, []);
 
   return (
     <div className='recipes-page-container'>
       <div className='recipes-page'>
-        <div className="search__container">
-          <div className="your-required-wrapper" style={{ width: 200, height: 50, fontSize: '19px' }}>
-            <SwitchSelector
-              onChange={onChange}
-              options={[
-                {
-                  label: "Moje",
-                  value: 'my',
-                  selectedBackgroundColor: isPending ? "red" : '#27ae60'
-                },
-                {
-                  label: "Zapisane",
-                  value: "saved",
-                  selectedBackgroundColor: isPending ? "red" : '#27ae60'
-                }
-              ]}
-              initialSelectedIndex={0}
-              backgroundColor={"#e1f6f4"}
-              fontColor={"black"}
-            />
-          </div>
-          <input onChange={(e) => { setSeachText(e.currentTarget.value) }} className="search__input" type="text" placeholder="Szukaj"></input>
-        </div>
-        {recipes.length ? <Categories allCategories={allCategories} categories={categories} setCategories={setCategories} /> : <></>}
 
+        <div className="search__container">
+          <SearchBar onChange={onSwitchChange} setText={setSeachText} />
+        </div>
+
+        <div className='categories-container' >
+          {recipes.length ? <Categories allCategories={allCategories} categories={categories} setCategories={setCategories} /> : <></>}
+        </div>
 
         <div className="recipes-container">
           {currentUser
@@ -203,6 +181,7 @@ export default function Recipes({ currentUser }:{currentUser:string}) {
               : <FontAwesomeIcon icon={faUtensils} shake style={{ fontSize: '350px', color: '#27ae60', marginTop: '20%' }} />
             : <h1>Zaloguj sie aby zobaczyć swoje przepisy!</h1>}
         </div>
+
       </div>
     </div>
   )
