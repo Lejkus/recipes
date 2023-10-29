@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+
 import { db, storage } from "../config/firebase";
 import {
   getDocs,
@@ -15,12 +16,11 @@ import {
 } from "firebase/storage";
 
 import '../styles/recipes.scss'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDownload, faEraser } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import PublicRecipeCard from '../components/RecipesPage/RecipesCard/PublicRecipeCard';
 
+import { RecipeType } from '../types/types';
 
-export default function PublicRecipes({ currentUser }: { currentUser: string }) {
+export default function PublicRecipes({ currentUser }: { currentUser: string | undefined }) {
   const recipesCollectionRef = collection(db, "recipes");
   const constituentsCollectionRef = collection(db, 'constituents')
 
@@ -68,7 +68,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string }) 
     }
   };
 
-  const addRecipeToSaved = async (recipe) => {
+  const addRecipeToSaved = async (recipe: RecipeType) => {
     if (recipe.userId !== currentUser) {
       if (recipe.usersShared && !recipe.usersShared.includes(currentUser)) {
         const docRef = doc(db, "recipes", recipe.id);
@@ -85,8 +85,8 @@ export default function PublicRecipes({ currentUser }: { currentUser: string }) 
 
   };
 
-  const deleteRecipeFromSaved = async (recipe) => {
-    if (recipe.usersShared && recipe.usersShared.includes(currentUser)) {
+  const deleteRecipeFromSaved = async (recipe: RecipeType) => {
+    if (currentUser && recipe.usersShared && recipe.usersShared.includes(currentUser)) {
       const docRef = doc(db, "recipes", recipe.id);
       const updateData = {
         usersShared: recipe.usersShared.filter((user: string) => user !== currentUser),
@@ -104,32 +104,14 @@ export default function PublicRecipes({ currentUser }: { currentUser: string }) 
     <div className='recipes-page-container'>
       <div className='recipes-page'>
 
-
         <div className="recipes-container">
-          {recipes.length ? <>{recipes.map((recipe, i) => {
-            return <div className='recipe-card' key={i} >
-              <div className='header' style={recipe.images[0] ? { backgroundImage: `url(${recipe.images[0]})` } : { backgroundImage: `url(https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg)` }}  >
-                {recipe.userId !== currentUser ? recipe.usersShared && recipe.usersShared.includes(currentUser) ? <button className='edit' onClick={() => { deleteRecipeFromSaved(recipe) }}><FontAwesomeIcon icon={faEraser} /></button> : <button className='edit' onClick={() => { addRecipeToSaved(recipe) }}><FontAwesomeIcon icon={faDownload} /></button> : <></>}
-              </div>
-              <Link style={{ textDecoration: "none" }} to={`recipe/${recipe.id}`}>
-                <div className='body'>
-                  <p className='title'>{recipe.name}</p>
-                  <div className='mini-container'>
-                    <h3>Składniki:</h3>
-                    <h3>{recipe.time}</h3>
-                  </div>
-
-                  <ul className='ingredients'>
-                    {recipe.constituents.length ? recipe.constituents.slice(0, 3).map(({ ingredient }) => {
-                      return <li><i className='fa fa fa-shopping-cart '></i>{ingredient}</li>
-                    }) : <p>Brak dodanych składników</p>}
-
-                  </ul>
-                </div>
-              </Link>
-
-            </div>
-          })}</> : <i className="fa fas fa-spinner fa-pulse" style={{ fontSize: '400px', color: '#27ae60' }}></i>}
+          {recipes.length
+            ? <>
+              {recipes.map((recipe, index) => {
+                return <PublicRecipeCard recipe={recipe} index={index} currentUser={currentUser} deleteFromSaved={deleteRecipeFromSaved} addToSaved={addRecipeToSaved} />
+              })}
+            </>
+            : <i className="fa fas fa-spinner fa-pulse" style={{ fontSize: '400px', color: '#27ae60' }}></i>}
 
         </div>
 

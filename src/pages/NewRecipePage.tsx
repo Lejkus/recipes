@@ -7,7 +7,7 @@ import '../styles/newrecipe.scss'
 
 import { RecipeType,ConstituentType } from '../types/types';
 
-export default function NewRecipe({ currentUser }:{currentUser:string}) {
+export default function NewRecipe({ currentUser }:{currentUser:string | undefined}) {
 
     const recipesCollectionRef = collection(db, "recipes");
     const constituentsCollectionRef = collection(db, 'constituents')

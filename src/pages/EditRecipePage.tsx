@@ -5,13 +5,15 @@ import { collection, addDoc, doc, getDoc, getDocs, query, where, updateDoc, dele
 
 import { getDownloadURL, listAll, ref, uploadBytes, } from "firebase/storage";
 import '../styles/newrecipe.scss'
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface RecipeType { id: string, name: string, preparation: string, time: string, userId: string, categories: Array<String> }
 interface ConstituentType { ingredient: string, recipe: string, amount: string, id: string }
 
-export default function EditRecipe({ currentUser }:{currentUser:string}) {
+export default function EditRecipe({ currentUser }: { currentUser: string | undefined }) {
     const { id } = useParams();
+    const navigate = useNavigate();
+
 
     const [loading, setLoading] = useState(true);
 
@@ -182,17 +184,20 @@ export default function EditRecipe({ currentUser }:{currentUser:string}) {
 
         await Promise.all(addDocPromises);
 
-        console.log("Constituents added successfully!");
+        console.log("Constituents edited successfully!");
 
         if (filesArray.length) {
             try {
                 filesArray.forEach(async (file) => {
                     await uploadBytes(ref(storage, `images/${docRef.id}/${file.name}`), file);
                 })
+
             } catch (err) {
                 console.error(err);
             }
         }
+        navigate("/");
+
     }
 
     useEffect(() => {

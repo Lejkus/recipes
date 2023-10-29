@@ -2,8 +2,7 @@ import { memo } from "react"
 import SwitchSelector from "react-switch-selector"
 
 export default memo(function SearchBar({ onChange, setText }: { onChange: (newValue: string) => void, setText: React.Dispatch<React.SetStateAction<string>> }) {
-    console.log('render');
-    
+
     return <>
         <div className="your-required-wrapper" style={{ width: 200, height: 50, fontSize: '19px' }}>
             <SwitchSelector

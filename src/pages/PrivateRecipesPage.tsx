@@ -7,7 +7,7 @@ import '../styles/recipes.scss'
 import Categories from '../components/RecipesPage/Categories';
 
 // @ts-ignore
-import RecipesComponent from '../components/RecipesPage/RecipesComponent';
+import PrivateRecipeCard from '../components/RecipesPage/RecipesCard/PrivateRecipeCard';
 import SearchBar from '../components/RecipesPage/SearchBar'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -15,7 +15,7 @@ import { faUtensils } from '@fortawesome/free-solid-svg-icons';
 
 import { RecipeType, ConstituentType } from '../types/types';
 
-export default function Recipes({ currentUser }: { currentUser: string }) {
+export default function Recipes({ currentUser }:{currentUser:string | undefined}) {
 
   const recipesCollectionRef = collection(db, "recipes");
   const constituentsCollectionRef = collection(db, 'constituents')
@@ -172,9 +172,11 @@ export default function Recipes({ currentUser }: { currentUser: string }) {
             ? !loading
               ? recipes.length
                 ? filteredRecipes.length ?
+                  // <RecipesComponent page={currentPage} currentUser={currentUser} recipes={filteredRecipes} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />
                   <>
-                    {currentPage === 'my' && <RecipesComponent page={currentPage} currentUser={currentUser} recipes={filteredRecipes} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />}
-                    {currentPage === 'saved' && <RecipesComponent page={currentPage} currentUser={currentUser} recipes={filteredRecipes} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />}
+                    {filteredRecipes.map((recipe, index) => {
+                      return <PrivateRecipeCard page={currentPage} index={index} currentUser={currentUser} recipe={recipe} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />
+                    })}
                   </>
                   : <h1>Nie znaleziono takiego przepisu</h1>
                 : <h1>Brak dodanych przepisów</h1>

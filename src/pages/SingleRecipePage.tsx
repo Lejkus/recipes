@@ -15,7 +15,7 @@ import AddReview from '../components/AddReview';
 import { renderStars } from '../components/AddReview';
 
 
-export default function Recipe({ currentUser }: { currentUser: string }) {
+export default function Recipe({ currentUser }: { currentUser: string | undefined}) {
   const { id } = useParams();
   const [recipe, setRecipe] = useState<RecipeType | null>(null);
   const [loading, setLoading] = useState(true);
