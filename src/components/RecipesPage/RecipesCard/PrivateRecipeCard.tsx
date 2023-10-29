@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
+import { RecipeType } from "../../../types/types";
 
 
-export default function PrivateRecipeCard({ page, recipe, index, elementloading, updateRecipePublic }) {
+export default function PrivateRecipeCard({ page, recipe, index, elementloading, updateRecipePublic }: { page: string, recipe: RecipeType, index: number, currentUser: string | undefined, elementloading: number, updateRecipePublic: (id: string, data: boolean, i: number) => void }) {
     const navigate = useNavigate()
 
     return <div className='recipe-card' key={index} >
-        {recipe.id}
         <div className='header' style={recipe.images[0] ? { backgroundImage: `url(${recipe.images[0]})` } : { backgroundImage: `url(https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg)` }}>
             {page === 'my'
                 ? <>
@@ -24,7 +24,7 @@ export default function PrivateRecipeCard({ page, recipe, index, elementloading,
                                 : <i className='fa fa-share'></i>}</button>
                     }
 
-                    </>
+                </>
                 : <></>}
 
         </div>

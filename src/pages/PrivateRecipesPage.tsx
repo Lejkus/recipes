@@ -15,14 +15,14 @@ import { faUtensils } from '@fortawesome/free-solid-svg-icons';
 
 import { RecipeType, ConstituentType } from '../types/types';
 
-export default function Recipes({ currentUser }:{currentUser:string | undefined}) {
+export default function Recipes({ currentUser }: { currentUser: string | undefined }) {
 
   const recipesCollectionRef = collection(db, "recipes");
   const constituentsCollectionRef = collection(db, 'constituents')
 
   const [recipes, setRecipes] = useState<RecipeType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [elementloading, setelementLoading] = useState(null);
+  const [elementloading, setelementLoading] = useState<number | null>(null);
 
   const [seachText, setSeachText] = useState("");
 
@@ -103,7 +103,7 @@ export default function Recipes({ currentUser }:{currentUser:string | undefined}
     }
   };
 
-  const updateRecipePublic = async (id: string, data: boolean, i) => {
+  const updateRecipePublic = async (id: string, data: boolean, i: number) => {
     const recipeDoc = doc(db, "recipes", id);
     setelementLoading(i)
 
