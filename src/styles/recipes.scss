@@ -303,8 +303,16 @@ body {
   }
 }
 
-.your-required-wrapper{
-  *{
+.your-required-wrapper {
+  * {
     font-size: 16px !important;
+  }
+}
+
+@media only screen and (max-width: 720px) {
+  .categories {
+    &-container {
+      padding: 0;
+    }
   }
 }

@@ -6,7 +6,7 @@ import { RecipeType } from "../../../types/types";
 
 export default function PublicRecipeCard({ recipe, index, currentUser, deleteFromSaved, addToSaved }: { recipe: RecipeType, index: number, currentUser: string | undefined, deleteFromSaved: (recipe: RecipeType) => void, addToSaved: (recipe: RecipeType) => void }) {
 
-    return <div className='recipe-card' key={index} >
+    return <div className='recipe-card' key={index}>
         <div className='header' style={recipe.images[0] ? { backgroundImage: `url(${recipe.images[0]})` } : { backgroundImage: `url(https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg)` }}  >
             {recipe.userId !== currentUser && currentUser
                 ? recipe.usersShared && recipe.usersShared.includes(currentUser)

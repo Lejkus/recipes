@@ -33,10 +33,9 @@ export default function Recipes({ currentUser }: { currentUser: string | undefin
 
   const [currentPage, setCurrentPage] = useState('my')
 
-
   const getRecipesList = async () => {
     try {
-      let querySnapshot: QuerySnapshot<any> = []
+      let querySnapshot: QuerySnapshot<any>
       if (currentPage === 'my') {
         querySnapshot = await getDocs(query(recipesCollectionRef, where("userId", "==", currentUser)));
         if (categories.length > 0) {
@@ -47,7 +46,7 @@ export default function Recipes({ currentUser }: { currentUser: string | undefin
         querySnapshot = await getDocs(query(recipesCollectionRef, where("public", "==", true), where("usersShared", "array-contains", currentUser)));
         // if (categories.length > 0) {
         //   //do naprawy
-        //   querySnapshot = await getDocs(query(recipesCollectionRef, where("usersShared", "array-contains", currentUser), where('categories', 'array-contains-any', categories)));
+        //   querySnapshot = await getDocs(query(recipesCollectionRef, where("usersShared", "array-contains", currentUser), where('categories', 'array-contains', categories)));
         // }
       }
 
@@ -63,7 +62,9 @@ export default function Recipes({ currentUser }: { currentUser: string | undefin
 
 
         constituentsQuerySnapshot.forEach((doc) => {
-          constituents.push(doc.data());
+          const data = doc.data() as ConstituentType;
+          constituents.push(data);
+
         });
 
         recipe.constituents = constituents;
@@ -172,7 +173,6 @@ export default function Recipes({ currentUser }: { currentUser: string | undefin
             ? !loading
               ? recipes.length
                 ? filteredRecipes.length ?
-                  // <RecipesComponent page={currentPage} currentUser={currentUser} recipes={filteredRecipes} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />
                   <>
                     {filteredRecipes.map((recipe, index) => {
                       return <PrivateRecipeCard page={currentPage} index={index} currentUser={currentUser} recipe={recipe} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />

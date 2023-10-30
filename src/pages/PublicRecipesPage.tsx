@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { db, storage } from "../config/firebase";
 import {
@@ -19,6 +19,7 @@ import '../styles/recipes.scss'
 import PublicRecipeCard from '../components/RecipesPage/RecipesCard/PublicRecipeCard';
 
 import { RecipeType } from '../types/types';
+import SearchBar from '../components/RecipesPage/SearchBar';
 
 export default function PublicRecipes({ currentUser }: { currentUser: string | undefined }) {
   const recipesCollectionRef = collection(db, "recipes");
@@ -26,6 +27,8 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
 
   const [recipes, setRecipes] = useState<any[]>([]);
 
+  const [seachText, setSeachText] = useState("");
+  const [filteredRecipes, setFilteredRecipes] = useState<RecipeType[]>([]);
 
   const getRecipesList = async () => {
     try {
@@ -96,6 +99,22 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
     }
   };
 
+  const filterRecipes = useCallback(() => {
+    const filteredData = recipes.filter((recipe) => {
+      if (seachText === '') {
+        return true;
+      } else {
+        return recipe.name.toLowerCase().includes(seachText.toLowerCase())
+      }
+    })
+
+    setFilteredRecipes(filteredData);
+  }, [seachText, recipes]);
+
+  useEffect(() => {
+    filterRecipes();
+  }, [filterRecipes]);
+
   useEffect(() => {
     getRecipesList()
   }, [])
@@ -104,10 +123,14 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
     <div className='recipes-page-container'>
       <div className='recipes-page'>
 
+      <div className="search__container">
+          <SearchBar  setText={setSeachText} />
+        </div>
+
         <div className="recipes-container">
-          {recipes.length
+          {filteredRecipes.length
             ? <>
-              {recipes.map((recipe, index) => {
+              {filteredRecipes.map((recipe, index) => {
                 return <PublicRecipeCard recipe={recipe} index={index} currentUser={currentUser} deleteFromSaved={deleteRecipeFromSaved} addToSaved={addRecipeToSaved} />
               })}
             </>
