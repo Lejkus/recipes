@@ -13,9 +13,11 @@ import { faClock, faComment, faStar as faStarEmpty } from '@fortawesome/fontawes
 
 import AddReview from '../components/AddReview';
 import { renderStars } from '../components/AddReview';
+import { averageOpinions } from '../functions/AverageOpinions';
 
 
-export default function Recipe({ currentUser }: { currentUser: string | undefined}) {
+
+export default function Recipe({ currentUser }: { currentUser: string | undefined }) {
   const { id } = useParams();
   const [recipe, setRecipe] = useState<RecipeType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,19 +59,16 @@ export default function Recipe({ currentUser }: { currentUser: string | undefine
       recipeData.id = recipeId;
 
       //opinie
-      const opinionsQuerySnapshot = await getDocs(query(collection(db, 'opinions'), where("recipe", "==", recipeDocRef)));
-      const opinions: OpinionType[] = [];
 
-      opinionsQuerySnapshot.forEach((doc) => {
-        const opinionData = doc.data();
-        delete opinionData.recipe;
-        opinions.push(opinionData);
-      });
-      const totalRating = opinions.reduce((sum, opinion) => sum + opinion.review, 0);
-      const average = totalRating / opinions.length;
-
-      recipeData.opinions = opinions;
-      recipeData.average = average
+      const result = await averageOpinions(recipeId);
+        if (result) {
+          const { average, opinions } = result;
+          
+          recipeData.average = average
+          recipeData.opinions = opinions
+        } else {
+          console.log("Nie ma tablicy opinions");
+        }
 
       setRecipe(recipeData);
       setLoading(false)

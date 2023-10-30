@@ -10,6 +10,7 @@ export interface RecipeType {
   constituents: Array<ConstituentType>;
   images:Array<string>;
   opinions?:Array<OpinionType>;
+  average?:number;
 }
 export interface ConstituentType {
   ingredient: string;

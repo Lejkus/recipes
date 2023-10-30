@@ -18,8 +18,10 @@ import {
 import '../styles/recipes.scss'
 import PublicRecipeCard from '../components/RecipesPage/RecipesCard/PublicRecipeCard';
 
-import { RecipeType } from '../types/types';
+import { ConstituentType, OpinionType, RecipeType } from '../types/types';
 import SearchBar from '../components/RecipesPage/SearchBar';
+
+import { averageOpinions } from '../functions/AverageOpinions';
 
 export default function PublicRecipes({ currentUser }: { currentUser: string | undefined }) {
   const recipesCollectionRef = collection(db, "recipes");
@@ -30,17 +32,18 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
   const [seachText, setSeachText] = useState("");
   const [filteredRecipes, setFilteredRecipes] = useState<RecipeType[]>([]);
 
+
   const getRecipesList = async () => {
     try {
       const querySnapshot = await getDocs(query(recipesCollectionRef, where("public", "==", true)));
-      const recipes = [];
+      const recipes: RecipeType[] = [];
 
       await Promise.all(querySnapshot.docs.map(async (doc) => {
         const recipe = doc.data();
 
         //skladniki
         const constituentsQuerySnapshot = await getDocs(query(constituentsCollectionRef, where("recipe", "==", doc.ref)));
-        const constituents = [];
+        const constituents: ConstituentType[] = [];
 
         constituentsQuerySnapshot.forEach((doc) => {
           constituents.push(doc.data());
@@ -49,7 +52,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
 
         //zdjecia
         const imagesListRef = ref(storage, `images/${doc.id}/`);
-        const images = []
+        const images: string[] = []
 
         const imagesrefs = await listAll(imagesListRef);
         await Promise.all(imagesrefs.items.reverse().map(async (item) => {
@@ -59,6 +62,15 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
 
         recipe.images = images
 
+        //opinie //możliwe że potem do poprawy bo każde będzie miało pustą tablice opinions
+        const result = await averageOpinions(recipe.id);
+        if (result) {
+          const { average, opinions } = result;
+
+          recipe.average = average
+        } else {
+          console.log("Nie ma tablicy opinions");
+        }
 
         recipe.id = doc.id;
         recipes.push(recipe);
@@ -123,8 +135,8 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
     <div className='recipes-page-container'>
       <div className='recipes-page'>
 
-      <div className="search__container">
-          <SearchBar  setText={setSeachText} />
+        <div className="search__container">
+          <SearchBar setText={setSeachText} />
         </div>
 
         <div className="recipes-container">

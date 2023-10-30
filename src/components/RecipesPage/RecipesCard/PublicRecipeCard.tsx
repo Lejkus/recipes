@@ -13,6 +13,8 @@ export default function PublicRecipeCard({ recipe, index, currentUser, deleteFro
                     ? <button className='edit' onClick={() => { deleteFromSaved(recipe) }}><FontAwesomeIcon icon={faEraser} /></button>
                     : <button className='edit' onClick={() => { addToSaved(recipe) }}><FontAwesomeIcon icon={faDownload} /></button>
                 : <></>}
+                
+            {recipe.average ? <button className='edit2'>{recipe.average}</button> : ""}
         </div>
         <Link style={{ textDecoration: "none" }} to={`recipe/${recipe.id}`}>
             <div className='body'>
