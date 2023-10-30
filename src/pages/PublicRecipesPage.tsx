@@ -18,7 +18,7 @@ import {
 import '../styles/recipes.scss'
 import PublicRecipeCard from '../components/RecipesPage/RecipesCard/PublicRecipeCard';
 
-import { ConstituentType, OpinionType, RecipeType } from '../types/types';
+import { ConstituentType, RecipeType } from '../types/types';
 import SearchBar from '../components/RecipesPage/SearchBar';
 
 import { averageOpinions } from '../functions/AverageOpinions';
@@ -64,12 +64,12 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
 
         //opinie //możliwe że potem do poprawy bo każde będzie miało pustą tablice opinions
         const result = await averageOpinions(recipe.id);
-        if (result) {
-          const { average, opinions } = result;
 
+        if (result) {
+          const { average } = result;
           recipe.average = average
         } else {
-          console.log("Nie ma tablicy opinions");
+          //console.log("Nie ma tablicy opinions");
         }
 
         recipe.id = doc.id;
@@ -142,9 +142,14 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
         <div className="recipes-container">
           {filteredRecipes.length
             ? <>
-              {filteredRecipes.map((recipe, index) => {
-                return <PublicRecipeCard recipe={recipe} index={index} currentUser={currentUser} deleteFromSaved={deleteRecipeFromSaved} addToSaved={addRecipeToSaved} />
-              })}
+              {filteredRecipes.slice() // Tworzy kopię tablicy, aby nie modyfikować oryginalnej
+                .sort((a, b) => {
+                  const averageA = isNaN(a.average) ? -Infinity : a.average;
+                  const averageB = isNaN(b.average) ? -Infinity : b.average;
+                  return averageB - averageA; // Sortowanie po wartości "average" malejąco
+                }).map((recipe, index) => {
+                  return <PublicRecipeCard recipe={recipe} index={index} currentUser={currentUser} deleteFromSaved={deleteRecipeFromSaved} addToSaved={addRecipeToSaved} />
+                })}
             </>
             : <i className="fa fas fa-spinner fa-pulse" style={{ fontSize: '400px', color: '#27ae60' }}></i>}
 

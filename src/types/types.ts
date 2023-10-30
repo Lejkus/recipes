@@ -22,6 +22,7 @@ export interface OpinionType {
   review: number;
   userID: string;
   date?:Date;
+  recipe?:any
 }
 
 //😃😎

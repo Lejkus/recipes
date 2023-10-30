@@ -1,18 +1,18 @@
-import { ChangeEvent,MouseEvent, useState } from 'react'
+import { ChangeEvent, MouseEvent, useState } from 'react'
 
 import { db, storage } from "../config/firebase";
-import { collection, addDoc, doc, } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, } from "firebase/firestore";
 import { ref, uploadBytes, } from "firebase/storage";
 import '../styles/newrecipe.scss'
 
-import { RecipeType,ConstituentType } from '../types/types';
+import { RecipeType, ConstituentType } from '../types/types';
 
-export default function NewRecipe({ currentUser }:{currentUser:string | undefined}) {
+export default function NewRecipe({ currentUser }: { currentUser: string | undefined }) {
 
     const recipesCollectionRef = collection(db, "recipes");
     const constituentsCollectionRef = collection(db, 'constituents')
 
-    const [newRecipe, setNewRecipe] = useState<RecipeType>({ name: '', preparation: '', time: '', userId: '', categories: [],usersShared:[] })
+    const [newRecipe, setNewRecipe] = useState<RecipeType>({ name: '', preparation: '', time: '', userId: '', categories: [], usersShared: [] })
     const [newConstituents, setNewConstituents] = useState<Array<ConstituentType>>([])
     const [newConstituent, setNewConstituent] = useState<ConstituentType>({ ingredient: '', amount: '', recipe: '' })
 
@@ -22,14 +22,14 @@ export default function NewRecipe({ currentUser }:{currentUser:string | undefine
     //const [fileUpload, setFileUpload] = useState(null);
     const [filesArray, setFilesArray] = useState([]);
 
-    
+
     const updateRecipe = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
         const fieldName = e.target.name;
         setNewRecipe(existingValues => ({
-          ...existingValues,
-          [fieldName]: e.target.value,
+            ...existingValues,
+            [fieldName]: e.target.value,
         }));
-      };
+    };
 
     const updateConstituent = (e: ChangeEvent<HTMLInputElement>) => {
         const fieldName = e.target.name
@@ -99,10 +99,14 @@ export default function NewRecipe({ currentUser }:{currentUser:string | undefine
                 time: newRecipe.time,
                 categories: newRecipe.categories,
                 userId: currentUser,
-                public:false,
-                usersShared:[]
+                public: false,
+                usersShared: []
             }).then(async function (docRef) {
                 console.log("Document written with ID: ", docRef.id);
+
+                // Zaktualizuj pole `id` w dokumencie na podstawie `docRef.id`
+                const recipeDocRef = doc(recipesCollectionRef, docRef.id);
+                await updateDoc(recipeDocRef, { id: docRef.id });
 
                 // skladniki
                 if (newConstituents.length) {

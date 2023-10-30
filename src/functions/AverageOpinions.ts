@@ -4,11 +4,15 @@ import { db } from "../config/firebase";
 
 export async function averageOpinions(id: string) {
   try {
+    
+
     const recipeDocRef = doc(collection(db, "recipes"), id);
     const opinionsQuerySnapshot = await getDocs(
       query(collection(db, "opinions"), where("recipe", "==", recipeDocRef))
     );
     const opinions: OpinionType[] = [];
+
+    
 
     opinionsQuerySnapshot.forEach((doc) => {
       const opinionData = doc.data() as OpinionType;
@@ -24,6 +28,7 @@ export async function averageOpinions(id: string) {
 
     return { average, opinions };
   } catch (error) {
+
     return null;
   }
 }

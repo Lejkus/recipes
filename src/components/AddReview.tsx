@@ -14,6 +14,7 @@ interface StarProps {
     filled: boolean;
     onClick?: () => void;
 }
+
 export const Star: React.FC<StarProps> = ({ filled, onClick }) => {
     return (
         <span style={onClick ? { cursor: 'pointer' } : undefined} onClick={onClick}>
@@ -41,8 +42,8 @@ export const renderStars = (rating: number) => {
     return stars;
 };
 
-const checkIfOpinionExists = (recipeRef:DocumentReference, userId:number, opinions:QueryDocumentSnapshot) => {
-    
+const checkIfOpinionExists = (recipeRef: DocumentReference, userId: string, opinions: Array<OpinionType> ) => {
+
     const exists = opinions.some((opinion) => {
         return opinion.recipe === recipeRef || opinion.userID === userId;
     });
@@ -82,7 +83,14 @@ export default function AddReview({ user, recipe }: { user: string, recipe: Reci
                 }
 
 
+            } else {
+                setOpinion("Napisz już coś :)")
+                setTimeout(() => {
+                    setOpinion("");
+                }, 2000);
             }
+        } else {
+            setOpinion("Zaloguj sie aby podzielić się swoją opinią :)")
         }
 
     }
