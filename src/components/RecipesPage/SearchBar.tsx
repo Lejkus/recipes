@@ -4,7 +4,9 @@ import SwitchSelector from "react-switch-selector"
 export default memo(function SearchBar({ onChange, page, setText }: { onChange: (newValue: string) => void, page: 'private' | 'public', setText: React.Dispatch<React.SetStateAction<string>> }) {
 
     return <>
-        <div className="your-required-wrapper" style={{ width: 200, height: 50, fontSize: '19px' }}>
+        <div className="your-required-wrapper" style={page === 'public'
+            ? { width: 350, height: 50, fontSize: '19px' }
+            : { width: 200, height: 50, fontSize: '19px' }}>
             <SwitchSelector
                 // @ts-ignore
                 onChange={onChange}
@@ -13,8 +15,13 @@ export default memo(function SearchBar({ onChange, page, setText }: { onChange: 
                     page === 'public'
                         ? [
                             {
-                                label: "Ocena",
+                                label: "Z Oceną",
                                 value: 'rating',
+                                selectedBackgroundColor: '#27ae60'
+                            },
+                            {
+                                label: "Ze Zdjęciem",
+                                value: "image",
                                 selectedBackgroundColor: '#27ae60'
                             },
                             {

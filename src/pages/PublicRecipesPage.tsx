@@ -139,6 +139,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
   const onSwitchChange = useCallback((newValue: string) => {
     setCurrentPage(newValue);
   }, []);
+  console.log(filteredRecipes);
 
   return (
     <div className='recipes-page-container'>
@@ -155,6 +156,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
               ? <>
                 {currentPage === 'rating' ? (
                   filteredRecipes
+                    .filter(recipe => !isNaN(recipe.average)) //usuwanie bez oceny
                     .slice() // Tworzy kopię tablicy, aby nie modyfikować oryginalnej
                     .sort((a, b) => {
                       const averageA = isNaN(a.average) ? -Infinity : a.average;
@@ -170,8 +172,20 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
                         addToSaved={addRecipeToSaved}
                       />
                     ))
-                ) : (
-                  filteredRecipes.map((recipe, index) => (
+                ) : currentPage === 'image' ? (
+                  filteredRecipes
+                    .filter(recipe => recipe.images[0])
+                    .map((recipe, index) => (
+                      <PublicRecipeCard
+                        recipe={recipe}
+                        index={index}
+                        currentUser={currentUser}
+                        deleteFromSaved={deleteRecipeFromSaved}
+                        addToSaved={addRecipeToSaved}
+                      />
+                    ))
+                ) : filteredRecipes
+                  .map((recipe, index) => (
                     <PublicRecipeCard
                       recipe={recipe}
                       index={index}
@@ -179,8 +193,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
                       deleteFromSaved={deleteRecipeFromSaved}
                       addToSaved={addRecipeToSaved}
                     />
-                  ))
-                )}
+                  ))}
               </>
               : <h1>Nie znaleziono takiego przepisu</h1>
             : <FontAwesomeIcon icon={faUtensils} shake style={{ fontSize: '350px', color: '#27ae60', marginTop: '50%' }} />}
