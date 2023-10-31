@@ -33,7 +33,6 @@ export default function EditRecipe({ currentUser }: { currentUser: string | unde
     const getRecipe = async () => {
         try {
             const docRef = doc(db, "recipes", id);
-            //let recipe = {}
 
             const docSnapshot = await getDoc(docRef);
             if (docSnapshot.exists()) {

@@ -12,8 +12,6 @@ export async function averageOpinions(id: string) {
     );
     const opinions: OpinionType[] = [];
 
-    
-
     opinionsQuerySnapshot.forEach((doc) => {
       const opinionData = doc.data() as OpinionType;
       //delete opinionData.recipe;

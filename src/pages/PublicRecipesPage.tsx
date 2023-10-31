@@ -22,16 +22,20 @@ import { ConstituentType, RecipeType } from '../types/types';
 import SearchBar from '../components/RecipesPage/SearchBar';
 
 import { averageOpinions } from '../functions/AverageOpinions';
+import { faUtensils } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function PublicRecipes({ currentUser }: { currentUser: string | undefined }) {
   const recipesCollectionRef = collection(db, "recipes");
   const constituentsCollectionRef = collection(db, 'constituents')
 
   const [recipes, setRecipes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [seachText, setSeachText] = useState("");
   const [filteredRecipes, setFilteredRecipes] = useState<RecipeType[]>([]);
 
+  const [currentPage, setCurrentPage] = useState('rating')
 
   const getRecipesList = async () => {
     try {
@@ -77,6 +81,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
       }));
 
       setRecipes(recipes);
+      setLoading(false)
 
     } catch (err) {
       console.error(err);
@@ -131,27 +136,54 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
     getRecipesList()
   }, [])
 
+  const onSwitchChange = useCallback((newValue: string) => {
+    setCurrentPage(newValue);
+  }, []);
+
   return (
     <div className='recipes-page-container'>
       <div className='recipes-page'>
 
         <div className="search__container">
-          <SearchBar setText={setSeachText} />
+          <SearchBar onChange={onSwitchChange} page={"public"} setText={setSeachText} />
         </div>
 
         <div className="recipes-container">
-          {filteredRecipes.length
-            ? <>
-              {filteredRecipes.slice() // Tworzy kopię tablicy, aby nie modyfikować oryginalnej
-                .sort((a, b) => {
-                  const averageA = isNaN(a.average) ? -Infinity : a.average;
-                  const averageB = isNaN(b.average) ? -Infinity : b.average;
-                  return averageB - averageA; // Sortowanie po wartości "average" malejąco
-                }).map((recipe, index) => {
-                  return <PublicRecipeCard recipe={recipe} index={index} currentUser={currentUser} deleteFromSaved={deleteRecipeFromSaved} addToSaved={addRecipeToSaved} />
-                })}
-            </>
-            : <i className="fa fas fa-spinner fa-pulse" style={{ fontSize: '400px', color: '#27ae60' }}></i>}
+
+          {!loading ?
+            filteredRecipes.length
+              ? <>
+                {currentPage === 'rating' ? (
+                  filteredRecipes
+                    .slice() // Tworzy kopię tablicy, aby nie modyfikować oryginalnej
+                    .sort((a, b) => {
+                      const averageA = isNaN(a.average) ? -Infinity : a.average;
+                      const averageB = isNaN(b.average) ? -Infinity : b.average;
+                      return averageB - averageA; // Sortowanie po wartości "average" malejąco
+                    })
+                    .map((recipe, index) => (
+                      <PublicRecipeCard
+                        recipe={recipe}
+                        index={index}
+                        currentUser={currentUser}
+                        deleteFromSaved={deleteRecipeFromSaved}
+                        addToSaved={addRecipeToSaved}
+                      />
+                    ))
+                ) : (
+                  filteredRecipes.map((recipe, index) => (
+                    <PublicRecipeCard
+                      recipe={recipe}
+                      index={index}
+                      currentUser={currentUser}
+                      deleteFromSaved={deleteRecipeFromSaved}
+                      addToSaved={addRecipeToSaved}
+                    />
+                  ))
+                )}
+              </>
+              : <h1>Nie znaleziono takiego przepisu</h1>
+            : <FontAwesomeIcon icon={faUtensils} shake style={{ fontSize: '350px', color: '#27ae60', marginTop: '50%' }} />}
 
         </div>
 

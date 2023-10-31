@@ -161,7 +161,7 @@ export default function Recipes({ currentUser }: { currentUser: string | undefin
       <div className='recipes-page'>
 
         <div className="search__container">
-          <SearchBar onChange={onSwitchChange} setText={setSeachText} />
+          <SearchBar onChange={onSwitchChange} page={"private"} setText={setSeachText} />
         </div>
 
         <div className='categories-container' >
@@ -180,7 +180,7 @@ export default function Recipes({ currentUser }: { currentUser: string | undefin
                   </>
                   : <h1>Nie znaleziono takiego przepisu</h1>
                 : <h1>Brak dodanych przepisów</h1>
-              : <FontAwesomeIcon icon={faUtensils} shake style={{ fontSize: '350px', color: '#27ae60', marginTop: '20%' }} />
+              : <FontAwesomeIcon icon={faUtensils} shake style={{ fontSize: '350px', color: '#27ae60', marginTop: '50%' }} />
             : <h1>Zaloguj sie aby zobaczyć swoje przepisy!</h1>}
         </div>
 
