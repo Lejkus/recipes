@@ -108,12 +108,53 @@ export default function Recipes({ currentUser }: { currentUser: string | undefin
     const recipeDoc = doc(db, "recipes", id);
     setelementLoading(i)
 
-    await updateDoc(recipeDoc, { public: data })
-    await getRecipesList().then(() => {
-      setelementLoading(null)
+    recipes.map((r) => {
+      if (r.id === id) {
+        r.public = data
+      } else {
+        return r
+      }
     })
 
+    await updateDoc(recipeDoc, { public: data })
+
+    setelementLoading(null)
   };
+
+  const deleteRecipeFromSaved = async (recipe: RecipeType) => {
+    if (currentUser && recipe.usersShared && recipe.usersShared.includes(currentUser)) {
+
+      // Tworzy kopię tablicy przepisów i usuwa bieżącego użytkownika z listy usersShared
+      const updatedRecipes = recipes.map((r) => {
+        if (r.id === recipe.id) {
+          return {
+            ...r,
+            usersShared: r.usersShared.filter((user: string) => user !== currentUser),
+          };
+        }
+        return r;
+      });
+
+      const docRef = doc(db, "recipes", recipe.id);
+      const updateData = {
+        // pobiera zaktualizowanąliste usersShared
+        usersShared: updatedRecipes.find((r) => r.id === recipe.id)?.usersShared || [],
+      };
+
+      try {
+        await updateDoc(docRef, updateData);
+        console.log('usunięto przepis z ulubionych w bazie danych');
+      } catch (error) {
+        console.error('Błąd usuwania przepisu z ulubionych w bazie danych:', error);
+      }
+
+      const updatedRecipes2 = updatedRecipes.filter((r) => r.id !== recipe.id);
+
+      // Aktualizuje stan lokalnej tablicy przepisów
+      setRecipes(updatedRecipes2);
+    }
+  };
+
 
   const filterRecipes = useCallback(() => {
     const filteredData = recipes.filter((recipe) => {
@@ -175,7 +216,7 @@ export default function Recipes({ currentUser }: { currentUser: string | undefin
                 ? filteredRecipes.length ?
                   <>
                     {filteredRecipes.map((recipe, index) => {
-                      return <PrivateRecipeCard page={currentPage} index={index} currentUser={currentUser} recipe={recipe} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />
+                      return <PrivateRecipeCard deleteFromSaved={deleteRecipeFromSaved} page={currentPage} index={index} currentUser={currentUser} recipe={recipe} elementloading={elementloading} updateRecipePublic={updateRecipePublic} />
                     })}
                   </>
                   : <h1>Nie znaleziono takiego przepisu</h1>

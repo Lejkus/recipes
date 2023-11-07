@@ -8,7 +8,7 @@ export default function PublicRecipeCard({ recipe, elementloading, index, curren
 
     return <div className='recipe-card' key={index}>
         <div className='header' style={recipe.images[0] ? { backgroundImage: `url(${recipe.images[0]})` } : { backgroundImage: `url(https://boodabike.com/wp-content/uploads/2023/03/no-image.jpg)` }}  >
-            {elementloading === recipe.id ? <button className='edit2'><i className="fa fa-spinner fa-spin"></i></button>
+            {elementloading === recipe.id ? <button className='edit'><i className="fa fa-spinner fa-spin"></i></button>
                 :
                 recipe.userId !== currentUser && currentUser
                     ? recipe.usersShared && recipe.usersShared.includes(currentUser)

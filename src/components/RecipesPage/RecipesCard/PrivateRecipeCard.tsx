@@ -1,8 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { RecipeType } from "../../../types/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEraser } from "@fortawesome/free-solid-svg-icons";
 
 
-export default function PrivateRecipeCard({ page, recipe, index, elementloading, updateRecipePublic }: { page: string, recipe: RecipeType, index: number, currentUser: string | undefined, elementloading: number | null, updateRecipePublic: (id: string, data: boolean, i: number) => void }) {
+export default function PrivateRecipeCard({ page,deleteFromSaved, recipe, index, elementloading, updateRecipePublic }: { page: string, recipe: RecipeType, index: number, currentUser: string | undefined, elementloading: number | null, updateRecipePublic: (id: string, data: boolean, i: number) => void }) {
     const navigate = useNavigate()
 
     return <div className='recipe-card' key={index} >
@@ -25,7 +27,7 @@ export default function PrivateRecipeCard({ page, recipe, index, elementloading,
                     }
 
                 </>
-                : <></>}
+                : <button className='edit' onClick={() => { deleteFromSaved(recipe) }}><FontAwesomeIcon icon={faEraser} /></button>}
 
         </div>
         <Link style={{ textDecoration: "none" }} to={`recipe/${recipe.id}`}>
