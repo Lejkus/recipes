@@ -32,6 +32,8 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
   const [recipes, setRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [elementloading, setelementLoading] = useState<string | null>(null);
+
   const [seachText, setSeachText] = useState("");
   const [filteredRecipes, setFilteredRecipes] = useState<RecipeType[]>([]);
 
@@ -89,37 +91,81 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
   };
 
   const addRecipeToSaved = async (recipe: RecipeType) => {
-    if (recipe.userId !== currentUser) {
-      if (recipe.usersShared && !recipe.usersShared.includes(currentUser)) {
-        const docRef = doc(db, "recipes", recipe.id);
-        const updateData = { usersShared: [...recipe.usersShared, currentUser] };
-        await updateDoc(docRef, updateData);
-        console.log('dodano');
-      } else {
-        const docRef = doc(db, "recipes", recipe.id);
-        const updateData = { usersShared: [currentUser] };
-        await updateDoc(docRef, updateData);
-        console.log('dodano');
-      }
-    }
+    // Sprawdzamy, czy przepis nie należy do aktualnie zalogowanego użytkownika
+    if (recipe.userId !== currentUser && currentUser) {
+      setelementLoading(recipe.id);
 
+      // Tworzy kopię przepisu
+      let updatedRecipe = { ...recipe };
+
+      // sprawdzamy, czy bieżący użytkownik nie znajduje się na tej liście
+      if (updatedRecipe.usersShared && !updatedRecipe.usersShared.includes(currentUser)) {
+        //Jeśli nie jest obecny, dodajemy go do listy
+        updatedRecipe.usersShared = [...updatedRecipe.usersShared, currentUser];
+      } else {
+        //tworzymy nową listę, w której jedynym użytkownikiem jest bieżący użytkownik
+        updatedRecipe.usersShared = [currentUser];
+      }
+
+      const docRef = doc(db, "recipes", updatedRecipe.id);
+      const updateData = { usersShared: updatedRecipe.usersShared };
+
+      try {
+        await updateDoc(docRef, updateData);
+        console.log('dodano przepis do ulubionych w bazie danych');
+      } catch (error) {
+        console.error('Błąd dodawania przepisu do ulubionych w bazie danych:', error);
+      }
+
+      // Aktualizuj przepis w tablicy
+      const updatedRecipes = recipes.map((r) =>
+        r.id === updatedRecipe.id ? updatedRecipe : r
+      );
+
+      // Aktualizuje stan lokalnej tablicy przepisów
+      setRecipes(updatedRecipes);
+      setelementLoading(null);
+    }
   };
 
   const deleteRecipeFromSaved = async (recipe: RecipeType) => {
     if (currentUser && recipe.usersShared && recipe.usersShared.includes(currentUser)) {
+      setelementLoading(recipe.id)
+
+      // Tworzy kopię tablicy przepisów i usuwa bieżącego użytkownika z listy usersShared
+      const updatedRecipes = recipes.map((r) => {
+        if (r.id === recipe.id) {
+          return {
+            ...r,
+            usersShared: r.usersShared.filter((user: string) => user !== currentUser),
+          };
+        }
+        return r;
+      });
+
       const docRef = doc(db, "recipes", recipe.id);
-      const updateData = {
-        usersShared: recipe.usersShared.filter((user: string) => user !== currentUser),
+      const updateData = { 
+        // pobiera zaktualizowanąliste usersShared
+        usersShared: updatedRecipes.find((r) => r.id === recipe.id)?.usersShared || [],
+      };
+      
+      try {
+        await updateDoc(docRef, updateData);
+        console.log('usunięto przepis z ulubionych w bazie danych');
+      } catch (error) {
+        console.error('Błąd usuwania przepisu z ulubionych w bazie danych:', error);
       }
-      await updateDoc(docRef, updateData);
-      console.log('usunięto');
+
+      // Aktualizuje stan lokalnej tablicy przepisów
+      setRecipes(updatedRecipes);
+      setelementLoading(null)
     }
   };
 
   const filterRecipes = useCallback(() => {
     const filteredData = recipes.filter((recipe) => {
       if (seachText === '') {
-        return true;
+        return recipe;
       } else {
         return recipe.name.toLowerCase().includes(seachText.toLowerCase())
       }
@@ -139,7 +185,6 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
   const onSwitchChange = useCallback((newValue: string) => {
     setCurrentPage(newValue);
   }, []);
-  console.log(filteredRecipes);
 
   return (
     <div className='recipes-page-container'>
@@ -170,6 +215,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
                         currentUser={currentUser}
                         deleteFromSaved={deleteRecipeFromSaved}
                         addToSaved={addRecipeToSaved}
+                        elementloading={elementloading}
                       />
                     ))
                 ) : currentPage === 'image' ? (
@@ -182,6 +228,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
                         currentUser={currentUser}
                         deleteFromSaved={deleteRecipeFromSaved}
                         addToSaved={addRecipeToSaved}
+                        elementloading={elementloading}
                       />
                     ))
                 ) : filteredRecipes
@@ -192,6 +239,7 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
                       currentUser={currentUser}
                       deleteFromSaved={deleteRecipeFromSaved}
                       addToSaved={addRecipeToSaved}
+                      elementloading={elementloading}
                     />
                   ))}
               </>
