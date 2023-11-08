@@ -73,7 +73,7 @@ export default function EditRecipe({ currentUser }: { currentUser: string | unde
         }
     };
 
-    const ButtonEffect = e => {
+    const ButtonEffect = (e) => {
         if (e.target.classList.contains("add-category")) {
             if (newCategory) {
                 e.target.classList.add('validate')

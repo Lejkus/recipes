@@ -7,7 +7,7 @@ import { db, storage } from '../config/firebase';
 import { getDownloadURL, listAll, ref } from 'firebase/storage';
 
 import '../styles/recipe.scss'
-import { faStar, faStarHalfStroke, faUsers, faUtensils } from '@fortawesome/free-solid-svg-icons';
+import { faUsers, faUtensils } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faComment, faStar as faStarEmpty } from '@fortawesome/fontawesome-free-regular'
 
@@ -33,14 +33,14 @@ export default function Recipe({ currentUser }: { currentUser: string | undefine
         return null;
       }
 
-      const recipeData = recipeDocSnapshot.data();
+      const recipeData = recipeDocSnapshot.data() as RecipeType;
 
       //składniki
       const constituentsQuerySnapshot = await getDocs(query(collection(db, 'constituents'), where("recipe", "==", recipeDocRef)));
       const constituents: ConstituentType[] = [];
 
       constituentsQuerySnapshot.forEach((doc) => {
-        constituents.push(doc.data());
+        constituents.push(doc.data() as ConstituentType);
       });
 
       recipeData.constituents = constituents;
@@ -61,14 +61,14 @@ export default function Recipe({ currentUser }: { currentUser: string | undefine
       //opinie
 
       const result = await averageOpinions(recipeId);
-        if (result) {
-          const { average, opinions } = result;
-          
-          recipeData.average = average
-          recipeData.opinions = opinions
-        } else {
-          console.log("Nie ma tablicy opinions");
-        }
+      if (result) {
+        const { average, opinions } = result;
+
+        recipeData.average = average
+        recipeData.opinions = opinions
+      } else {
+        console.log("Nie ma tablicy opinions");
+      }
 
       setRecipe(recipeData);
       setLoading(false)
@@ -100,10 +100,12 @@ export default function Recipe({ currentUser }: { currentUser: string | undefine
                       <p>{recipe.average ? recipe.average : <>brak</>}</p>
                     </div>
                     <div className='icon'>
+                      {/* @ts-ignore */}
                       <FontAwesomeIcon icon={faClock} />
                       <p>{recipe.time}</p>
                     </div>
                     <div className='icon'>
+                      {/* @ts-ignore */}
                       <FontAwesomeIcon icon={faComment} />
                       <p>{recipe.opinions?.length ? recipe.opinions.length : 0}</p>
                     </div>
@@ -140,7 +142,7 @@ export default function Recipe({ currentUser }: { currentUser: string | undefine
               <div className='reviews'>
                 <AddReview user={currentUser} recipe={recipe} />
                 <div className='reviews-container'>
-                  <h2>Komentarze: {recipe.opinions.length ? recipe.opinions.length : 0}</h2>
+                  <h2>Komentarze: {recipe.opinions && recipe.opinions.length ? recipe.opinions.length : 0}</h2>
                   {recipe.opinions ? recipe.opinions.map(({ review, opinion }, i) => {
                     return <div className='opinion'><div className='stars'>{renderStars(review)}</div><p className='text'>{opinion}</p></div>
                   }) : <></>}

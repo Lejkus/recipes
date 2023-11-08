@@ -5,9 +5,10 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged
 } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import '../styles/auth.scss'
 import { useNavigate } from "react-router-dom";
+import { FormEvent } from 'react';
 
 
 export default function Auth() {
@@ -17,7 +18,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [activeSite, setActiveSite] = useState("");
 
-  const signUp = async (e: Event) => {
+  const signUp = async (e: FormEvent) => {
     e.preventDefault();
     if (email && password) {
       await createUserWithEmailAndPassword(auth, email, password)
@@ -33,7 +34,7 @@ export default function Auth() {
     }
 
   };
-  const signIn = async (e: Event) => {
+  const signIn = async (e: FormEvent) => {
     e.preventDefault();
     if (email && password) {
       await signInWithEmailAndPassword(auth, email, password)

@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { RecipeType } from "../../../types/types";
+import { RecipeCardType } from "../../../types/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEraser } from "@fortawesome/free-solid-svg-icons";
 
 
-export default function PrivateRecipeCard({ page,deleteFromSaved, recipe, index, elementloading, updateRecipePublic }: { page: string, recipe: RecipeType, index: number, currentUser: string | undefined, elementloading: number | null, updateRecipePublic: (id: string, data: boolean, i: number) => void }) {
+
+export default function PrivateRecipeCard({ page, deleteFromSaved, recipe, index, elementloading, updateRecipePublic }: RecipeCardType) {
     const navigate = useNavigate()
 
     return <div className='recipe-card' key={index} >

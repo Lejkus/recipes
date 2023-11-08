@@ -25,4 +25,15 @@ export interface OpinionType {
   recipe?:any
 }
 
+export interface RecipeCardType {
+  page: string;
+  recipe: RecipeType;
+  index: number;
+  currentUser: string | undefined;
+  elementloading: string | number | null;
+  updateRecipePublic: (id: string, data: boolean, i: number) => void;
+  deleteFromSaved: (recipe: RecipeType) => void;
+  // addToSaved: (recipe: RecipeType) => void;
+}
+
 //😃😎

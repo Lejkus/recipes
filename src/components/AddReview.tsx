@@ -18,6 +18,7 @@ interface StarProps {
 export const Star: React.FC<StarProps> = ({ filled, onClick }) => {
     return (
         <span style={onClick ? { cursor: 'pointer' } : undefined} onClick={onClick}>
+            {/* @ts-ignore */}
             {filled ? <FontAwesomeIcon icon={faStar} /> : <FontAwesomeIcon icon={faStarEmpty} />}
         </span>
     );
@@ -42,7 +43,7 @@ export const renderStars = (rating: number) => {
     return stars;
 };
 
-const checkIfOpinionExists = (recipeRef: DocumentReference, userId: string, opinions: Array<OpinionType> ) => {
+const checkIfOpinionExists = (recipeRef: DocumentReference, userId: string, opinions: Array<OpinionType>) => {
 
     const exists = opinions.some((opinion) => {
         return opinion.recipe === recipeRef || opinion.userID === userId;
@@ -51,19 +52,11 @@ const checkIfOpinionExists = (recipeRef: DocumentReference, userId: string, opin
     return exists;
 };
 
-export default function AddReview({ user, recipe }: { user: string, recipe: RecipeType }) {
+export default function AddReview({ user, recipe }: { user: string | undefined, recipe: RecipeType }) {
 
     const [rating, setRating] = useState(5);
     const [opinion, setOpinion] = useState('');
     const [isActiveButton, setIsActiveButton] = useState(true)
-
-    useEffect(() => {
-        if (checkIfOpinionExists(doc(db, "recipes", recipe.id), user, recipe.opinions.length > 0 ? recipe.opinions : [])) {
-            setOpinion("Dodano już opinie, dziękujemy! :)")
-            setIsActiveButton(false);
-        }
-    }, [])
-
 
     const addReview = async () => {
         if (user && recipe) {
@@ -71,7 +64,7 @@ export default function AddReview({ user, recipe }: { user: string, recipe: Reci
 
                 const recipeRef = doc(db, "recipes", recipe.id);
 
-                if (checkIfOpinionExists(recipeRef, user, recipe.opinions.length > 0 ? recipe.opinions : [])) {
+                if (checkIfOpinionExists(recipeRef, user, recipe.opinions && recipe.opinions.length > 0 ? recipe.opinions : [])) {
                     alert('już dodano opinie');
                 } else {
                     const opinionObject = { review: rating, opinion: opinion, recipe: recipeRef, userID: user }
@@ -94,6 +87,13 @@ export default function AddReview({ user, recipe }: { user: string, recipe: Reci
         }
 
     }
+
+    useEffect(() => {
+        if (user && checkIfOpinionExists(doc(db, "recipes", recipe.id), user, recipe.opinions && recipe.opinions.length > 0 ? recipe.opinions : [])) {
+            setOpinion("Dodano już opinie, dziękujemy! :)")
+            setIsActiveButton(false);
+        }
+    }, [])
 
     return (
         <div className='add-review'>

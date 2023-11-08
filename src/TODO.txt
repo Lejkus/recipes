@@ -1,7 +1,5 @@
-1. public recipes i recipes odwołują się do jednego componentu "recipesComponent"
-3. Poprawić TS
+3. Poprawić TS w PublicRecipePage, NewReciePage
 4. Postarać się pofragmentować kod na mniejsze kawałki
-5. sortowanie przepisów
 7. brak możliwości dodania pustego przepisu
 8. może usuwanie
 9! naprawić zapisane kategorie
