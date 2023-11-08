@@ -45,14 +45,14 @@ export default function PublicRecipes({ currentUser }: { currentUser: string | u
       const recipes: RecipeType[] = [];
 
       await Promise.all(querySnapshot.docs.map(async (doc) => {
-        const recipe = doc.data();
+        const recipe = doc.data() as RecipeType;
 
         //skladniki
         const constituentsQuerySnapshot = await getDocs(query(constituentsCollectionRef, where("recipe", "==", doc.ref)));
         const constituents: ConstituentType[] = [];
 
         constituentsQuerySnapshot.forEach((doc) => {
-          constituents.push(doc.data());
+          constituents.push(doc.data() as ConstituentType);
         });
         recipe.constituents = constituents;
 

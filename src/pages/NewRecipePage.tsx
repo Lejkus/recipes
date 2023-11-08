@@ -6,13 +6,16 @@ import { ref, uploadBytes, } from "firebase/storage";
 import '../styles/newrecipe.scss'
 
 import { RecipeType, ConstituentType } from '../types/types';
+import { useNavigate } from 'react-router-dom';
 
 export default function NewRecipe({ currentUser }: { currentUser: string | undefined }) {
+
+    const navigate = useNavigate();
 
     const recipesCollectionRef = collection(db, "recipes");
     const constituentsCollectionRef = collection(db, 'constituents')
 
-    const [newRecipe, setNewRecipe] = useState<RecipeType>({ name: '', preparation: '', time: '', userId: '', categories: [], usersShared: [] })
+    const [newRecipe, setNewRecipe] = useState<RecipeType>({ id: '', name: '', preparation: '', time: '', userId: '', categories: [], usersShared: [], constituents: [], images: [] })
     const [newConstituents, setNewConstituents] = useState<Array<ConstituentType>>([])
     const [newConstituent, setNewConstituent] = useState<ConstituentType>({ ingredient: '', amount: '', recipe: '' })
 
@@ -147,6 +150,7 @@ export default function NewRecipe({ currentUser }: { currentUser: string | undef
                         console.error(err);
                     }
                 }
+                navigate("/");
             })
 
         } catch (err) {

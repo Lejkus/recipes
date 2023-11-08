@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom'
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
-export default function Navbar({ currentUser }:{currentUser:string | undefined}) {
+
+export default function Navbar({ currentUser }: { currentUser: string | undefined }) {
 
   const [visible, setVisible] = useState(false)
 
@@ -31,6 +32,7 @@ export default function Navbar({ currentUser }:{currentUser:string | undefined})
           <Link to={'/'}><li className="nav-item">Moje przepisy</li></Link>
           <Link to={'/public'}><li className="nav-item">Publiczne przepisy</li></Link>
           <Link to={'/new'}><li className="nav-item">Dodaj przepis</li></Link>
+
           {currentUser ? <li className='nav-item'><i onClick={logout} className="fa fa-sign-out fa-lg" style={{ color: 'white' }} aria-hidden="true"></i></li> : <Link to={'/login'}><li className="nav-item"><i className="fa fa-solid fa-user fa-lg" style={{ color: 'white' }}></i></li></Link>}
 
         </ul>

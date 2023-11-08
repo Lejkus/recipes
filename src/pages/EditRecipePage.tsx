@@ -195,6 +195,7 @@ export default function EditRecipe({ currentUser }: { currentUser: string | unde
                 console.error(err);
             }
         }
+
         navigate("/");
 
     }
